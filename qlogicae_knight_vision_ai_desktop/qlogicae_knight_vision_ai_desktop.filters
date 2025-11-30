@@ -26,13 +26,13 @@
     <QtRcc Include="application.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtUic Include="qlogicae_knight_vision_ai\qt\application.ui">
+    <QtUic Include="qlogicae_knight_vision_ai_desktop\qt\application.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtMoc Include="qlogicae_knight_vision_ai\includes\application.hpp">
+    <QtMoc Include="qlogicae_knight_vision_ai_desktop\includes\application.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <ClCompile Include="qlogicae_knight_vision_ai\sources\application.cpp">
+    <ClCompile Include="qlogicae_knight_vision_ai_desktop\sources\application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="pch.hpp">
@@ -46,43 +46,43 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qlogicae_knight_vision_ai\sources\assembly.cpp">
+    <ClCompile Include="qlogicae_knight_vision_ai_desktop\sources\assembly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qlogicae_knight_vision_ai\sources\all.cpp">
+    <ClCompile Include="qlogicae_knight_vision_ai_desktop\sources\all.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qlogicae_knight_vision_ai\sources\utilities.cpp">
+    <ClCompile Include="qlogicae_knight_vision_ai_desktop\sources\utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="qlogicae_knight_vision_ai\resources\application.h">
+    <ClInclude Include="qlogicae_knight_vision_ai_desktop\resources\application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qlogicae_knight_vision_ai\resources\application1.h">
+    <ClInclude Include="qlogicae_knight_vision_ai_desktop\resources\application1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qlogicae_knight_vision_ai\includes\assembly.hpp">
+    <ClInclude Include="qlogicae_knight_vision_ai_desktop\includes\assembly.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qlogicae_knight_vision_ai\includes\all.hpp">
+    <ClInclude Include="qlogicae_knight_vision_ai_desktop\includes\all.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qlogicae_knight_vision_ai\includes\utilities.hpp">
+    <ClInclude Include="qlogicae_knight_vision_ai_desktop\includes\utilities.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="qlogicae_knight_vision_ai\resources\application.rc">
+    <ResourceCompile Include="qlogicae_knight_vision_ai_desktop\resources\application.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="qlogicae_knight_vision_ai\assembly\x64_masm__main.asm">
+    <None Include="qlogicae_knight_vision_ai_desktop\assembly\x64_masm__main.asm">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "qlogicae_knight_vision_ai/includes/application.hpp"
+#include "qlogicae_knight_vision_ai_desktop/includes/application.hpp"
 
 #include "qlogicae_knight_vision_ai_core/includes/all.hpp"
 #include "qlogicae_core/includes/all.hpp"
