@@ -21,7 +21,7 @@ TRAINING_TESTING_RATIO = 0.7
 TRAINING_POSITION_RATIO = 0.4
 TESTING_POSITION_RATIO = 0.4
 
-RELATIVE_QLOGICAE_DOT_QLOGICAE_AI_FOLDER_PATH = "qlogicae/.qlogicae/ai"
+RELATIVE_QLOGICAE_DOT_QLOGICAE_AI_FOLDER_PATH = "qlogicae/.qlogicae/application"
 
 RELATIVE_ROOT_DATASET_FOLDER_PATH = f"{RELATIVE_QLOGICAE_DOT_QLOGICAE_AI_FOLDER_PATH}/datasets"
 RELATIVE_TRAINING_FILE_PATH = "training.csv"
@@ -33,7 +33,7 @@ FULL_TESTING_FILE_PATH = os.path.join(RELATIVE_ROOT_DATASET_FOLDER_PATH, RELATIV
 FULL_VOCABULARY_FILE_PATH = os.path.join(RELATIVE_ROOT_DATASET_FOLDER_PATH, RELATIVE_VOCABULARY_FILE_PATH)
 
 
-RELATIVE_ROOT_MODELS_PATH = f"{RELATIVE_QLOGICAE_DOT_QLOGICAE_AI_FOLDER_PATH}/models"
+RELATIVE_ROOT_MODELS_PATH = f"{RELATIVE_QLOGICAE_DOT_QLOGICAE_AI_FOLDER_PATH}/templates/default/build/qlogicae/application/models"
 RELATIVE_MODELS_PTH_PATH = "model.pth"
 RELATIVE_MODELS_ONNX_PATH = "model.onnx"
 
@@ -73,36 +73,6 @@ MINIMUM_LEARNING_RATE = 1e-6
 
 def parse_console_arguments():
     parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--IS_VERBOSE_LOGGING_ENABLED",
-        type=str,
-        default="False"
-    )
-
-    parser.add_argument(
-        "--IS_PREPARING_DATASET_ENABLED",
-        type=str,
-        default="True"
-    )
-
-    parser.add_argument(
-        "--IS_TRAINING_MODEL_ENABLED",
-        type=str,
-        default="True"
-    )
-
-    parser.add_argument(
-        "--IS_TESTING_MODEL_ENABLED",
-        type=str,
-        default="True"
-    )
-
-    parser.add_argument(
-        "--IS_TESTING_MODEL_OUTPUT_VERBOSE_ENABLED",
-        type=str,
-        default="False"
-    )
 
     arguments = parser.parse_args()
 

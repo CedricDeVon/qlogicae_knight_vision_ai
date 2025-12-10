@@ -4,7 +4,6 @@ import numpy as np
 from tqdm import tqdm
 import onnxruntime as ort
 
-
 from . import utilities
 
 
@@ -25,7 +24,6 @@ class PasswordExposureONNX:
         self.output_name = self.session.get_outputs()[0].name
 
     def encode_boc(self, text):
-
         vec = np.zeros(self.vocab_size, dtype=np.float32)
 
         unk_idx = self.char_to_idx.get("<UNK>")
@@ -96,7 +94,9 @@ def execute():
     total_samples = len(true_labels)
 
     print("")
-    print("> Wrong Predictions: ")
+    if (utilities.IS_TESTING_MODEL_OUTPUT_VERBOSE_ENABLED):    
+        print("> Wrong Predictions: ")
+
     for text, true_lab, pred_lab, pr in tqdm(
         list(zip(examples, true_labels, labels, probs)),
         total=total_samples,
@@ -105,7 +105,7 @@ def execute():
         if true_lab == pred_lab:
             correct_sample_predictions += 1
 
-        if (true_lab != pred_lab):
+        if (utilities.IS_TESTING_MODEL_OUTPUT_VERBOSE_ENABLED and (true_lab != pred_lab)):
             print("Text:", text)
             print("Actual Label:", true_lab)
             print("Predicted Label:", pred_lab)
