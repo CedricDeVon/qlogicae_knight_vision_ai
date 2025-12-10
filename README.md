@@ -10,7 +10,7 @@
 
 
 <div style="text-align: center;">
-  <h1>KnightVisionAI</h1>
+  <h1>Aise</h1>
   <p style="font-style: italic;">Chess Piece Movement Simulator Via Neural Networks</p>
 <div style="margin: 32px 64px;">
     
