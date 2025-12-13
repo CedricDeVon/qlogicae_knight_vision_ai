@@ -1,20 +1,20 @@
 #include "pch.hpp"
 
-#include "../includes/utilities.hpp"
+#include "../includes/transformer.hpp"
 
 namespace QLogicaeAiseConsole
 {
-	Utilities::Utilities()
+	Transformer::Transformer()
 	{
-		
+
 	}
 
-	Utilities::~Utilities()
+	Transformer::~Transformer()
 	{
-		
+
 	}
 
-	bool Utilities::setup()
+	bool Transformer::setup()
 	{
 		try
 		{
@@ -27,7 +27,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::Utilities::setup()",
+				"QLogicaeAiseConsole::Transformer::setup()",
 				exception.what()
 			);
 
@@ -35,7 +35,7 @@ namespace QLogicaeAiseConsole
 		}
 	}
 
-	std::future<bool> Utilities::setup_async()
+	std::future<bool> Transformer::setup_async()
 	{
 		std::promise<bool> promise;
 		auto future = promise.get_future();
@@ -54,7 +54,7 @@ namespace QLogicaeAiseConsole
 		return future;
 	}
 
-	void Utilities::setup_async(
+	void Transformer::setup_async(
 		QLogicaeCore::Result<std::future<void>>& result
 	)
 	{
@@ -81,18 +81,14 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
-	void Utilities::setup(
+	void Transformer::setup(
 		QLogicaeCore::Result<void>& result
 	)
-	{		
-		CLIENT_JSON_FILE.setup(
-			QLogicaeCore::UTILITIES.FULL_APPLICATION_QLOGICAE_PUBLIC_APPLICATION_CONFIGURATIONS_QLOGICAE_FILE_PATH
-		);
-
+	{
 		result.set_to_good_status_without_value();
 	}
 
-	std::future<bool> Utilities::setup_async(
+	std::future<bool> Transformer::setup_async(
 		const std::function<void(const bool& result)>& callback
 	)
 	{
@@ -107,7 +103,7 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
-	void Utilities::setup_async(
+	void Transformer::setup_async(
 		const std::function<void(QLogicaeCore::Result<void>& result)>& callback
 	)
 	{
@@ -126,7 +122,7 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
-	bool Utilities::terminate()
+	bool Transformer::terminate()
 	{
 		try
 		{
@@ -139,7 +135,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::Utilities::terminate()",
+				"QLogicaeAiseConsole::Transformer::terminate()",
 				exception.what()
 			);
 
@@ -147,7 +143,7 @@ namespace QLogicaeAiseConsole
 		}
 	}
 
-	std::future<bool> Utilities::terminate_async()
+	std::future<bool> Transformer::terminate_async()
 	{
 		std::promise<bool> promise;
 		auto future = promise.get_future();
@@ -166,7 +162,7 @@ namespace QLogicaeAiseConsole
 		return future;
 	}
 
-	void Utilities::terminate_async(
+	void Transformer::terminate_async(
 		QLogicaeCore::Result<std::future<void>>& result
 	)
 	{
@@ -193,14 +189,14 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
-	void Utilities::terminate(
+	void Transformer::terminate(
 		QLogicaeCore::Result<void>& result
 	)
 	{
 		result.set_to_good_status_without_value();
 	}
 
-	std::future<bool> Utilities::terminate_async(
+	std::future<bool> Transformer::terminate_async(
 		const std::function<void(const bool& result)>& callback
 	)
 	{
@@ -215,7 +211,7 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
-	void Utilities::terminate_async(
+	void Transformer::terminate_async(
 		const std::function<void(QLogicaeCore::Result<void>& result)>& callback
 	)
 	{
@@ -234,52 +230,123 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
-	std::string Utilities::get_application_full_name()
+	std::string Transformer::to_log_running_timestamp(
+		const bool& is_enabled
+	)
 	{
-		try
+		if (is_enabled)
 		{
-			return QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_NAME + " " +
-				"(" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_VERSION + ")";
-		}
-		catch (const std::exception& exception)
-		{
-			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::Utilities::get_application_full_name()",
-				exception.what()
+			return QLogicaeCore::TRANSFORMER.to_log_format(
+				"Running...",
+				QLogicaeCore::LogLevel::HIGHLIGHTED_INFO
 			);
-
-			return QLogicaeCore::UTILITIES.STRING_NONE_1;
 		}
+
+		return "";
 	}
 
-	std::string Utilities::get_application_about_details()
+	std::string Transformer::to_log_complete_timestamp(
+		const bool& is_enabled
+	)
 	{
-		try
+		if (is_enabled)
 		{
-			return
-				"\nName: \t\t\t" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_NAME + "\n" +
-				"Version: \t\t" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_VERSION + "\n" +
-				"Description: \t\t" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_DESCRIPTION + "\n" +
-				"Author(s): \t\t" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_AUTHORS + "\n" +
-				"Repository: \t\t" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_URL + "\n" +
-				"Architecture: \t\t" + QLogicaeCore::QLOGICAE_APPLICATION_UTILITIES.CONFIGURATIONS_APPLICATION_ARCHITECTURE + "\n\n";
-		}
-		catch (
-			const std::exception& exception
-		)
-		{
-			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::Utilities::get_application_about_details()",
-				exception.what()
+			return QLogicaeCore::TRANSFORMER.to_log_format(
+				"Complete!",
+				QLogicaeCore::LogLevel::HIGHLIGHTED_INFO
 			);
-
-			return QLogicaeCore::UTILITIES.STRING_NONE_1;
 		}
+
+		return "";
 	}
 
-	Utilities& Utilities::get_instance()
+	std::string Transformer::to_log_info_timestamp(
+		const std::string& text,
+		const bool& is_enabled
+	)
 	{
-		QLogicaeCore::Result<Utilities*> result;
+		if (is_enabled)
+		{
+			return QLogicaeCore::TRANSFORMER.to_log_format(
+				text,
+				QLogicaeCore::LogLevel::INFO
+			);
+		}
+
+		return "";
+	}
+
+	std::string Transformer::to_log_success_timestamp(
+		const std::string& text,
+		const bool& is_enabled
+	)
+	{
+		if (is_enabled)
+		{
+			return QLogicaeCore::TRANSFORMER.to_log_format(
+				text,
+				QLogicaeCore::LogLevel::SUCCESS
+			);
+		}
+
+		return "";
+	}
+
+	std::string Transformer::to_log_warning_timestamp(
+		const std::string& text,
+		const bool& is_enabled
+	)
+	{
+		if (is_enabled)
+		{
+			return QLogicaeCore::TRANSFORMER.to_log_format(
+				text,
+				QLogicaeCore::LogLevel::WARNING
+			);
+		}
+
+		return "";
+	}
+
+	std::string Transformer::to_log_exception_timestamp(
+		const std::string& text, const bool& is_enabled
+	)
+	{
+		if (is_enabled)
+		{
+			return QLogicaeCore::TRANSFORMER.to_log_format(
+				text,
+				QLogicaeCore::LogLevel::EXCEPTION
+			);
+		}
+
+		return "";
+	}
+
+	std::string Transformer::to_input_command_path(
+		const std::string command_path,
+		const std::string command_key
+	)
+	{
+		return command_path +
+			"___" + command_key;
+	}
+
+	void Transformer::to_input_command_path(
+		QLogicaeCore::Result<std::string>& result,
+		const std::string command_path,
+		const std::string command_key
+	)
+	{
+		result.set_to_good_status_with_value(
+			command_path +
+			"___" + command_key
+		);
+	}
+
+	Transformer& Transformer::get_instance()
+	{
+		QLogicaeCore::Result<Transformer*> result;
 
 		get_instance(
 			result
@@ -288,11 +355,11 @@ namespace QLogicaeAiseConsole
 		return *result.get_value();
 	}
 
-	void Utilities::get_instance(
-		QLogicaeCore::Result<Utilities*>& result
+	void Transformer::get_instance(
+		QLogicaeCore::Result<Transformer*>& result
 	)
 	{
-		static Utilities instance;
+		static Transformer instance;
 
 		result.set_to_good_status_with_value(
 			&instance

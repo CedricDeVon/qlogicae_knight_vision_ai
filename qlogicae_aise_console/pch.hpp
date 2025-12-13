@@ -1,5 +1,16 @@
 #pragma once
 
+#include <CLI/CLI.hpp>
+#include <CLI/Config.hpp>
+#include <CLI/Formatter.hpp>
+
+#include <absl/strings/str_cat.h>
+#include <absl/strings/str_replace.h>
+
+#include <indicators/cursor_control.hpp>
+#include <indicators/progress_spinner.hpp>
+#include <indicators/block_progress_bar.hpp>
+
 #include <any>
 #include <compare>
 #include <variant>
@@ -98,6 +109,18 @@
 #include <cstring>
 
 #include <windows.h>
+
+#include "qlogicae_core/includes/result.hpp"
+#include "qlogicae_core/includes/logger.hpp"
+#include "qlogicae_core/includes/cli_io.hpp"
+#include "qlogicae_core/includes/utilities.hpp"
+#include "qlogicae_core/includes/application.hpp"
+#include "qlogicae_core/includes/file_system.hpp"
+#include "qlogicae_core/includes/transformer.hpp"
+#include "qlogicae_core/includes/text_file_io.hpp"
+#include "qlogicae_core/includes/json_file_io.hpp"
+#include "qlogicae_core/includes/log_configurations.hpp"
+#include "qlogicae_core/includes/application_utilities.hpp"
 
 namespace QLogicaeAiseConsole
 {
