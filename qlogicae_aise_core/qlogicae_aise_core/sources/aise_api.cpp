@@ -386,15 +386,88 @@ namespace QLogicaeAiseCore
 		const AiseApiFileSystemEvaluationConfigurations& configurations
 	)
 	{
+		std::mutex results_mutex;
+		std::vector<std::future<void>> future_collection;
 		AiseApiFileSystemEvaluationResults file_system_evaluation_results;
+		AiseApiFileSystemEvaluationCallbackConfigurationsResults callback_configurations_results;		
 
-		std::cout << configurations.relative_folder_path << "\n";
-		std::cout << QLogicaeCore::UTILITIES.FULL_EXECUTED_FOLDER_PATH +
-			"\\" + configurations.relative_folder_path << "\n";
+		callback_configurations_results.text = "Evaluating...";
+		configurations.file_evaluation_callback(callback_configurations_results);
 
-		result.set_to_good_status_with_value(
-			file_system_evaluation_results
-		);
+		for (const auto& file_system_entity : std::filesystem::recursive_directory_iterator(
+			configurations.root_folder_path,
+			std::filesystem::directory_options::skip_permission_denied))
+		{
+			if (!file_system_entity.is_regular_file())
+			{
+				continue;
+			}
+
+			auto file_system_entity_path = file_system_entity.path();
+			auto file_extension = file_system_entity_path.extension().string();
+			std::string file_system_entity_path_string = file_system_entity_path.string();
+
+			bool extension_matched = false;
+			for (const auto& expected_file_extension : configurations.expected_file_extensions)
+			{
+				if (file_extension == expected_file_extension)
+				{
+					extension_matched = true;
+					break;
+				}
+			}
+
+			if (!extension_matched)
+			{
+				continue;
+			}
+
+			std::promise<void> file_promise;
+			future_collection.emplace_back(file_promise.get_future());
+
+			boost::asio::post(
+				QLogicaeCore::UTILITIES.BOOST_ASIO_POOL,
+				[this,
+				file_system_entity_path_string,
+				&configurations,
+				&file_system_evaluation_results,
+				&results_mutex,
+				file_promise = std::move(file_promise)]() mutable
+				{
+					std::lock_guard<std::mutex> lock(results_mutex);
+
+					auto& file_result =
+						file_system_evaluation_results.file_evaluation_results[file_system_entity_path_string];
+
+					std::ifstream file_stream(file_system_entity_path_string);
+					std::string line_text;
+
+					AiseApiFileLineEvaluationResults file_line_evaluation_results;
+
+					while (std::getline(file_stream, line_text))
+					{
+						file_line_evaluation_results.line_text = line_text;
+						file_line_evaluation_results.line_evaluation_accuracy = 0.0;
+						file_line_evaluation_results.timestamp_end = QLogicaeCore::TIME.now();
+
+						file_result.file_line_evaluation_results.push_back(
+							file_line_evaluation_results
+						);
+					}
+
+					file_result.timestamp_end = QLogicaeCore::TIME.now();
+					file_promise.set_value();
+				}
+			);
+		}
+
+		for (auto& current_future : future_collection)
+		{
+			current_future.get();
+		}
+
+		file_system_evaluation_results.timestamp_end = QLogicaeCore::TIME.now();
+		result.set_to_good_status_with_value(file_system_evaluation_results);
 	}
 
 	std::future<AiseApiFileSystemEvaluationResults> AiseApi::evaluate_async(

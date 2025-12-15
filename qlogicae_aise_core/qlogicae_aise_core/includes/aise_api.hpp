@@ -5,6 +5,7 @@
 #include "aise_api_file_line_evaluation_results.hpp"
 #include "aise_api_file_system_evaluation_results.hpp"
 #include "aise_api_file_system_evaluation_configurations.hpp"
+#include "aise_api_file_system_evaluation_callback_configurations_results.hpp"
 
 namespace QLogicaeAiseCore
 {

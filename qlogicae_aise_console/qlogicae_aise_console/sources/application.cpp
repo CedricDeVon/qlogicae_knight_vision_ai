@@ -1,4 +1,4 @@
-#include "pch.hpp"
+﻿#include "pch.hpp"
 
 #include "../includes/application.hpp"
 
@@ -543,11 +543,16 @@ namespace QLogicaeAiseConsole
 			evaluate_command->alias("e");
 			
 			evaluate_command
-				->add_option("--relative-folder-path",
-					STRING_INPUTS.get("evaluate", "relative_folder_path"),
-					"Relative folder path to evaluate")
-				->default_val("");
+				->add_option("--root-folder-path",
+					STRING_INPUTS.get("evaluate", "root_folder_path"),
+					"Root folder path to evaluate")
+				->default_val(QLogicaeCore::UTILITIES.FULL_EXECUTED_FOLDER_PATH);
 
+			evaluate_command
+				->add_option("--expected-file-extensions",
+					STRING_INPUTS.get("evaluate", "expected_file_extensions"),
+					"Expected file extensions")
+				->default_val(".hpp,.cpp");
 
 			evaluate_command
 				->add_option("--is-verbose",
@@ -565,11 +570,32 @@ namespace QLogicaeAiseConsole
 						BOOLEAN_INPUTS.get(
 							"evaluate", "is_verbose"
 						);
-					std::string evaluate_command__relative_folder_path =
+					std::string evaluate_command__root_folder_path =
 						STRING_INPUTS.get(
-							"evaluate", "relative_folder_path"
+							"evaluate", "root_folder_path"
 						);
 
+					std::string evaluate_command__expected_file_extensions =
+						STRING_INPUTS.get(
+							"evaluate", "expected_file_extensions"
+						);
+
+					std::vector<std::string> evaluate_command__expected_file_extensions_vector;
+					std::string token;
+					for (char ch : evaluate_command__expected_file_extensions)
+					{
+						if (ch == ',')
+						{
+							evaluate_command__expected_file_extensions_vector.push_back(token);
+							token.clear();
+						}
+						else
+						{
+							token.push_back(ch);
+						}
+					}
+					evaluate_command__expected_file_extensions_vector.push_back(token);
+					
 					QLogicaeCore::LogConfigurations console_log_configurations_1 =
 					{
 						.is_console_enabled = evaluate_command__is_verbose,
@@ -592,13 +618,97 @@ namespace QLogicaeAiseConsole
 
 						QLogicaeCore::Result<QLogicaeAiseCore::AiseApiFileSystemEvaluationResults> aise_results;
 
+						SetConsoleOutputCP(CP_UTF8);
+						SetConsoleCP(CP_UTF8);
+
+						HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+						DWORD mode = 0;
+						GetConsoleMode(handle, &mode);
+						mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+						SetConsoleMode(handle, mode);
+
+						CONSOLE_CURSOR_INFO cursor_info;
+						GetConsoleCursorInfo(handle, &cursor_info);
+						cursor_info.bVisible = FALSE;
+						SetConsoleCursorInfo(handle, &cursor_info);
+
+						indicators::ProgressSpinner progress_spinner
+						{
+							indicators::option::PostfixText{""},
+							indicators::option::ForegroundColor{indicators::Color::white},
+							indicators::option::SpinnerStates{
+								std::vector<std::string>{"⠈","⠐","⠠","⢀","⡀","⠄","⠂","⠁"}
+							},
+							indicators::option::FontStyles{
+								std::vector<indicators::FontStyle>{indicators::FontStyle::bold}
+							}
+						};
+						
+						progress_spinner.set_option(
+							indicators::option::ShowPercentage{ false }
+						);
+						
 						QLogicaeAiseCore::AISE_API.evaluate(
 							aise_results,
 							QLogicaeAiseCore::AiseApiFileSystemEvaluationConfigurations
 							{
-								.relative_folder_path = evaluate_command__relative_folder_path
+								.root_folder_path =
+									evaluate_command__root_folder_path,
+								.expected_file_extensions =
+									evaluate_command__expected_file_extensions_vector,
+								.file_evaluation_callback =
+									[&progress_spinner](const QLogicaeAiseCore::AiseApiFileSystemEvaluationCallbackConfigurationsResults& callback_results)
+								{									
+									progress_spinner.set_option(
+										indicators::option::PostfixText
+										{
+											callback_results.text
+										}
+									);
+
+									progress_spinner.tick();
+								}
 							}
-							);
+						);
+
+						progress_spinner.set_option(
+							indicators::option::ForegroundColor { indicators::Color::green }
+						);
+						progress_spinner.set_option(
+							indicators::option::ShowSpinner { false }
+						);
+						
+						progress_spinner.set_option(
+							indicators::option::PostfixText
+							{
+								"✔  Completed | " + std::to_string((aise_results.get_value().timestamp_end - aise_results.get_value().timestamp_start) / 1000000000) + " Seconds"
+							}
+						);
+						progress_spinner.mark_as_completed();
+
+						handle = GetStdHandle(STD_OUTPUT_HANDLE);
+						GetConsoleCursorInfo(handle, &cursor_info);
+						cursor_info.bVisible = TRUE;
+						SetConsoleCursorInfo(handle, &cursor_info);
+
+						/*
+						std::cout << aise_results.get_value().file_evaluation_results.size() << "\n";
+
+						for (const auto& [file_path, file_evaluation_result] :
+							aise_results.get_value().file_evaluation_results)
+						{
+							std::cout << file_path << file_evaluation_result.file_line_evaluation_results.size() << ":\n";
+							for (const auto& file_line_evaluation_result :
+								file_evaluation_result.file_line_evaluation_results)
+							{
+								std::cout << "\t" <<
+									file_line_evaluation_result.line_number << " | "
+									<< file_line_evaluation_result.line_evaluation_accuracy << " | "
+									<< file_line_evaluation_result.line_size << " | "
+									<< file_line_evaluation_result.line_text << "\n";
+							}
+						}
+						*/
 
 						LOGGER.log_complete(
 							void_result,

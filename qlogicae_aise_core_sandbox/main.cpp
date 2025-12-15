@@ -20,8 +20,6 @@ int main(int, char**)
     cursor_info.bVisible = FALSE;
     SetConsoleCursorInfo(handle, &cursor_info);
 
-    using namespace indicators;
-
     ProgressSpinner spinner{
         option::PostfixText{"Testing | 0 - 0 - 0"},
         option::ForegroundColor{Color::yellow},

@@ -2,6 +2,9 @@
 
 #include "framework.h"
 
+#include <fast_io.h>
+#include <fast_io_device.h>
+
 #include <absl/strings/str_cat.h>
 #include <absl/strings/str_replace.h>
 

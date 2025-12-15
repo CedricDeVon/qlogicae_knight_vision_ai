@@ -109,6 +109,7 @@ def execute():
 
     utilities.log_to_console(f"> Preparing Dataset - Clearing '{utilities.RELATIVE_ROOT_DATASET_FOLDER_PATH}' folder path - Starts")
     utilities.prepare_folder_recursively(utilities.RELATIVE_ROOT_DATASET_FOLDER_PATH)
+    utilities.prepare_folder_recursively(utilities.RELATIVE_ROOT_ENCODINGS_PATH)
     utilities.log_to_console(f"> Preparing Dataset - Clearing '{utilities.RELATIVE_ROOT_DATASET_FOLDER_PATH}' folder path - Complete")
 
     train_count = int(utilities.NUMBER_OF_SAMPLES * utilities.TRAINING_TESTING_RATIO)

@@ -187,6 +187,7 @@
     <ClInclude Include="qlogicae_aise_core\includes\aise_api_configurations.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\aise_api_file_evaluation_results.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\aise_api_file_line_evaluation_results.hpp" />
+    <ClInclude Include="qlogicae_aise_core\includes\aise_api_file_system_evaluation_callback_configurations_results.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\aise_api_file_system_evaluation_configurations.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\aise_api_file_system_evaluation_results.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\all.hpp" />
@@ -202,6 +203,7 @@
     <ClCompile Include="qlogicae_aise_core\sources\aise_api_configurations.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\aise_api_file_evaluation_results.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\aise_api_file_line_evaluation_results.cpp" />
+    <ClCompile Include="qlogicae_aise_core\sources\aise_api_file_system_evaluation_callback_configurations_results.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\aise_api_file_system_evaluation_configurations.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\aise_api_file_system_evaluation_results.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\all.cpp" />
