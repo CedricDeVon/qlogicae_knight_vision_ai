@@ -2,7 +2,7 @@
 
 #include "../includes/encoding_manager.hpp"
 
-namespace QLogicaeAiseConsole
+namespace QLogicaeAiseCore
 {
 	EncodingManager::EncodingManager()
 	{
@@ -27,7 +27,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::EncodingManager::setup()",
+				"QLogicaeAiseCore::EncodingManager::setup()",
 				exception.what()
 			);
 
@@ -140,7 +140,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::EncodingManager::terminate()",
+				"QLogicaeAiseCore::EncodingManager::terminate()",
 				exception.what()
 			);
 
@@ -255,7 +255,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::EncodingManager::load_vocabulary_file_content()",
+				"QLogicaeAiseCore::EncodingManager::load_vocabulary_file_content()",
 				exception.what()
 			);
 
@@ -279,7 +279,7 @@ namespace QLogicaeAiseConsole
 			return;
 		}
 
-		file_output >> _json_file_output; 
+		file_output >> _json_file_output;
 
 		_index_2 = _json_file_output.size();
 		_temporary_map.reserve(vocabulary_size);
@@ -364,7 +364,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::EncodingManager::from_string_to_boc()",
+				"QLogicaeAiseCore::EncodingManager::from_string_to_boc()",
 				exception.what()
 			);
 
@@ -377,111 +377,64 @@ namespace QLogicaeAiseConsole
 		const std::string_view& text
 	)
 	{
-		_boc_collection = std::vector<float>(_vocabulary_size, 0.0f);
-		_boc_collection_size = _boc_collection.size();
+		std::vector<float> boc_collection(_vocabulary_size, 0.0f);
 
+		const int unk = _unk_idx;
 		const int* lut = _lut;
-		const unsigned char* text_pointer =
-			reinterpret_cast<const unsigned char*>(text.data());
-		const unsigned char* text_pointer_end =
-			text_pointer + text.size();
 
-		while (text_pointer + 4 <= text_pointer_end)
+		const unsigned char* p = reinterpret_cast<const unsigned char*>(text.data());
+		const unsigned char* e = p + text.size();
+
+		int index_1, index_2, index_3, index_4, index_5;
+		float a, b, c, d, boc_sum, inv;
+
+		while (p + 4 <= e)
 		{
-			_index_1 = lut[text_pointer[0]];
-			_index_2 = lut[text_pointer[1]];
-			_index_3 = lut[text_pointer[2]];
-			_index_4 = lut[text_pointer[3]];
+			index_1 = lut[p[0]];
+			index_2 = lut[p[1]];
+			index_3 = lut[p[2]];
+			index_4 = lut[p[3]];
 
-			if (_index_1 >= 0)
-			{
-				_boc_collection[_index_1] += 1.0f;
-			}
-			else if (_unk_idx >= 0)
-			{
-				_boc_collection[_unk_idx] += 1.0f;
-			}
+			if (index_1 >= 0) boc_collection[index_1] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
+			if (index_2 >= 0) boc_collection[index_2] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
+			if (index_3 >= 0) boc_collection[index_3] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
+			if (index_4 >= 0) boc_collection[index_4] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
 
-			if (_index_2 >= 0)
-			{
-				_boc_collection[_index_2] += 1.0f;
-			}
-			else if (_unk_idx >= 0)
-			{
-				_boc_collection[_unk_idx] += 1.0f;
-			}
-
-			if (_index_3 >= 0)
-			{
-				_boc_collection[_index_3] += 1.0f;
-			}
-			else if (_unk_idx >= 0)
-			{
-				_boc_collection[_unk_idx] += 1.0f;
-			}
-
-			if (_index_4 >= 0)
-			{
-				_boc_collection[_index_4] += 1.0f;
-			}
-			else if (_unk_idx >= 0)
-			{
-				_boc_collection[_unk_idx] += 1.0f;
-			}
-
-			text_pointer += 4;
+			p += 4;
 		}
 
-		while (text_pointer < text_pointer_end)
+		while (p < e)
 		{
-			_index_1 = lut[*text_pointer];
-			if (_index_1 >= 0)
-			{
-				_boc_collection[_index_1] += 1.0f;
-			}
-
-			else if (_unk_idx >= 0)
-			{
-				_boc_collection[_unk_idx] += 1.0f;
-			}
-
-			++text_pointer;
+			index_5 = lut[*p];
+			if (index_5 >= 0) boc_collection[index_5] += 1.0f;
+			else if (unk >= 0) boc_collection[unk] += 1.0f;
+			++p;
 		}
 
-		for (_index_1 = 0;
-			_index_1 < _boc_collection_size;
-			_index_1 += 4
-		)
-		{
-			_float_1 =
-				_boc_collection[_index_1];
-			_float_2 =
-				(_index_1 + 1 < _boc_collection_size) ? _boc_collection[_index_1 + 1] : 0.0f;
-			_float_3 =
-				(_index_1 + 2 < _boc_collection_size) ? _boc_collection[_index_1 + 2] : 0.0f;
-			_float_4 =
-				(_index_1 + 3 < _boc_collection_size) ? _boc_collection[_index_1 + 3] : 0.0f;
+		boc_sum = 0.0f;
 
-			_boc_sum +=
-				_float_1 * _float_1 +
-				_float_2 * _float_2 +
-				_float_3 * _float_3 +
-				_float_4 * _float_4;
+		for (index_1 = 0; index_1 < _vocabulary_size; index_1 += 4)
+		{
+			a = boc_collection[index_1];
+			b = (index_1 + 1 < _vocabulary_size) ? boc_collection[index_1 + 1] : 0.0f;
+			c = (index_1 + 2 < _vocabulary_size) ? boc_collection[index_1 + 2] : 0.0f;
+			d = (index_1 + 3 < _vocabulary_size) ? boc_collection[index_1 + 3] : 0.0f;
+
+			boc_sum += a * a + b * b + c * c + d * d;
 		}
 
-		_boc_inv =
-			(_boc_sum > 0.0f) ? 1.0f / std::sqrt(_boc_sum) : 0.0f;
+		inv = (boc_sum > 0.0f) ? 1.0f / std::sqrt(boc_sum) : 0.0f;
 
-		if (_boc_inv != 0.0f)
+		if (inv != 0.0f)
 		{
-			for (float& boc_item : _boc_collection)
+			for (float& boc_value : boc_collection)
 			{
-				boc_item *= _boc_inv;
+				boc_value *= inv;
 			}
 		}
 
 		result.set_to_good_status_with_value(
-			_boc_collection
+			boc_collection
 		);
 	}
 

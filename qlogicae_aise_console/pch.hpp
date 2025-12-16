@@ -126,6 +126,7 @@
 #include "qlogicae_core/includes/application_utilities.hpp"
 
 #include "qlogicae_aise_core/includes/aise_api.hpp"
+#include "qlogicae_aise_core/includes/encoding_manager.hpp"
 #include "qlogicae_aise_core/includes/aise_api_configurations.hpp"
 #include "qlogicae_aise_core/includes/aise_api_file_evaluation_results.hpp"
 #include "qlogicae_aise_core/includes/aise_api_file_line_evaluation_results.hpp"

@@ -173,7 +173,8 @@ class ExposureModel
 {
 public:
     ExposureModel(const std::string& model_path)
-        : env_{ ORT_LOGGING_LEVEL_WARNING, "exp" },
+        :
+        env_{ ORT_LOGGING_LEVEL_WARNING, "exp" },
         session_options_{},
         run_options_{},
         memory_info_{

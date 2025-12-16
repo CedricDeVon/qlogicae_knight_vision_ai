@@ -2,16 +2,35 @@
 
 #include "../includes/neural_network_model.hpp"
 
-namespace QLogicaeAiseConsole
+namespace QLogicaeAiseCore
 {
-	NeuralNetworkModel::NeuralNetworkModel()
+	static std::wstring to_wstring(const std::string& s)
 	{
-		setup();
+		std::wstring w;
+		w.reserve(s.size());
+		for (unsigned char c : s)
+		{
+			w.push_back(static_cast<wchar_t>(c));
+		}
+		return w;
+	}
+
+	NeuralNetworkModel::NeuralNetworkModel():
+		_env { ORT_LOGGING_LEVEL_WARNING, "exp" },
+		_session_options{},
+		_run_options{},
+		_memory_info
+		{
+			Ort::MemoryInfo::CreateCpu(
+				OrtArenaAllocator,
+				OrtMemTypeDefault)
+		}
+	{		
 	}
 
 	NeuralNetworkModel::~NeuralNetworkModel()
 	{
-		terminate();
+		
 	}
 
 	bool NeuralNetworkModel::setup()
@@ -27,7 +46,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::NeuralNetworkModel::setup()",
+				"QLogicaeAiseCore::NeuralNetworkModel::setup()",
 				exception.what()
 			);
 
@@ -84,7 +103,9 @@ namespace QLogicaeAiseConsole
 	void NeuralNetworkModel::setup(
 		QLogicaeCore::Result<void>& result
 	)
-	{		
+	{
+
+
 		result.set_to_good_status_without_value();
 	}
 
@@ -122,6 +143,164 @@ namespace QLogicaeAiseConsole
 		);
 	}
 
+	bool NeuralNetworkModel::setup(
+		const std::string model_path
+	)
+	{
+		try
+		{
+			QLogicaeCore::Result<void> result;
+
+			setup(
+				result,
+				model_path
+			);
+
+			return result.is_status_safe();
+		}
+		catch (const std::exception& exception)
+		{
+			QLogicaeCore::LOGGER.handle_exception_async(
+				"QLogicaeAiseCore::NeuralNetworkModel::setup()",
+				exception.what()
+			);
+
+			return false;
+		}
+	}
+
+	std::future<bool> NeuralNetworkModel::setup_async(
+		const std::string model_path
+	)
+	{
+		std::promise<bool> promise;
+		auto future = promise.get_future();
+
+		boost::asio::post(
+			QLogicaeCore::UTILITIES.BOOST_ASIO_POOL,
+			[this, model_path,
+			promise = std::move(promise)]() mutable
+			{
+				promise.set_value(
+					setup(model_path)
+				);
+			}
+		);
+
+		return future;
+	}
+
+	void NeuralNetworkModel::setup_async(
+		QLogicaeCore::Result<std::future<void>>& result,
+		const std::string model_path
+	)
+	{
+		std::promise<void> promise;
+		auto future = promise.get_future();
+
+		boost::asio::post(
+			QLogicaeCore::UTILITIES.BOOST_ASIO_POOL,
+			[this, model_path,
+			promise = std::move(promise)]() mutable
+			{
+				QLogicaeCore::Result<void> result;
+
+				setup(
+					result,
+					model_path
+				);
+
+				promise.set_value();
+			}
+		);
+
+		result.set_to_good_status_with_value(
+			std::move(future)
+		);
+	}
+
+	void NeuralNetworkModel::setup(
+		QLogicaeCore::Result<void>& result,
+		const std::string model_path
+	)
+	{						
+		_session_options.SetIntraOpNumThreads(1);		
+		_session_options.SetGraphOptimizationLevel(
+			GraphOptimizationLevel::ORT_ENABLE_ALL);
+		
+		std::wstring wpath = to_wstring(model_path);
+		
+		_session = std::make_unique<Ort::Session>(
+			_env,
+			wpath.c_str(),
+			_session_options
+		);
+		
+		_input_name =
+			_session->GetInputNameAllocated(
+				0, _ort_allocator
+			).get();
+
+		_output_name =
+			_session->GetOutputNameAllocated(
+				0, _ort_allocator
+			).get();
+
+		_input_names[0] =
+			_input_name.c_str();
+
+		_output_names[0] =
+			_output_name.c_str();
+
+		_run_options.SetRunLogVerbosityLevel(0);
+
+		_memory_info =
+			Ort::MemoryInfo::CreateCpu(
+				OrtArenaAllocator, OrtMemTypeDefault
+			);
+
+		result.set_to_good_status_without_value();
+	}
+
+	std::future<bool> NeuralNetworkModel::setup_async(
+		const std::function<void(const bool& result)>& callback,
+		const std::string model_path
+	)
+	{
+		boost::asio::post(
+			QLogicaeCore::UTILITIES.BOOST_ASIO_POOL,
+			[this, model_path, callback]() mutable
+			{
+				callback(
+					setup(model_path)
+				);
+			}
+		);
+	}
+
+	void NeuralNetworkModel::setup_async(
+		const std::function<void(QLogicaeCore::Result<void>& result)>& callback,
+		const std::string model_path
+	)
+	{
+		boost::asio::post(
+			QLogicaeCore::UTILITIES.BOOST_ASIO_POOL,
+			[this, model_path, callback]() mutable
+			{
+				QLogicaeCore::Result<void> result;
+
+				setup(
+					result,
+					model_path
+				);
+
+				callback(
+					result
+				);
+			}
+		);
+	}
+
 	bool NeuralNetworkModel::terminate()
 	{
 		try
@@ -135,7 +314,7 @@ namespace QLogicaeAiseConsole
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::NeuralNetworkModel::terminate()",
+				"QLogicaeAiseCore::NeuralNetworkModel::terminate()",
 				exception.what()
 			);
 
@@ -231,21 +410,24 @@ namespace QLogicaeAiseConsole
 	}
 
 	double NeuralNetworkModel::predict(
-		const std::vector<float>& input
+		const std::string& input
 	)
 	{
 		try
 		{
-			QLogicaeCore::Result<void> result;
+			QLogicaeCore::Result<double> result;
 
-			setup(result);
+			predict(
+				result,
+				input
+			);
 
 			return result.get_value();
 		}
 		catch (const std::exception& exception)
 		{
 			QLogicaeCore::LOGGER.handle_exception_async(
-				"QLogicaeAiseConsole::NeuralNetworkModel::predict()",
+				"QLogicaeAiseCore::NeuralNetworkModel::predict()",
 				exception.what()
 			);
 
@@ -255,10 +437,37 @@ namespace QLogicaeAiseConsole
 
 	void NeuralNetworkModel::predict(
 		QLogicaeCore::Result<double>& result,
-		const std::vector<float>& input
+		const std::string& input
 	)
 	{
+		std::vector<float> boc_collection =
+			ENCODING_MANAGER.from_string_to_boc(
+				input
+			);
+		std::array<int64_t, 2> shape = { 1, static_cast<int64_t>(boc_collection.size()) };
+		std::size_t total = boc_collection.size();
 
+		Ort::Value tensor = Ort::Value::CreateTensor<float>(
+			_memory_info,
+			const_cast<float*>(boc_collection.data()),
+			total,
+			shape.data(),
+			shape.size());
+
+		std::vector<Ort::Value> outputs = _session->Run(
+			_run_options,
+			_input_names,
+			&tensor,
+			1,
+			_output_names,
+			1
+		);
+
+		float* raw = outputs.front().GetTensorMutableData<float>();
+
+		result.set_to_good_status_with_value(
+			static_cast<double>(*raw)
+		);
 	}
 
 	NeuralNetworkModel& NeuralNetworkModel::get_instance()

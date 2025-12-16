@@ -5,6 +5,9 @@
 
 #include "application.hpp"
 
+#include "encoding_manager.hpp"
+#include "neural_network_model.hpp"
+
 #include "aise_api.hpp"
 #include "aise_api_configurations.hpp"
 #include "aise_api_file_evaluation_results.hpp"

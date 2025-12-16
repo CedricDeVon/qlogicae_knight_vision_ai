@@ -1,6 +1,8 @@
 #pragma once
 
-namespace QLogicaeAiseConsole
+#include "encoding_manager.hpp"
+
+namespace QLogicaeAiseCore
 {
     class NeuralNetworkModel
     {
@@ -25,6 +27,34 @@ namespace QLogicaeAiseConsole
             const std::function<void(QLogicaeCore::Result<void>& result)>& callback
         );
 
+        bool setup(
+            const std::string model_path
+        );
+
+        std::future<bool> setup_async(
+            const std::string model_path
+        );
+
+        void setup_async(
+            QLogicaeCore::Result<std::future<void>>& result,
+            const std::string model_path
+        );
+
+        void setup(
+            QLogicaeCore::Result<void>& result,
+            const std::string model_path
+        );
+
+        std::future<bool> setup_async(
+            const std::function<void(const bool& result)>& callback,
+            const std::string model_path
+        );
+
+        void setup_async(
+            const std::function<void(QLogicaeCore::Result<void>& result)>& callback,
+            const std::string model_path
+        );
+
         bool terminate();
 
         std::future<bool> terminate_async();
@@ -46,12 +76,12 @@ namespace QLogicaeAiseConsole
         );
 
         double predict(
-            const std::vector<float>& input
+            const std::string& input
         );
 
         void predict(
             QLogicaeCore::Result<double>& result,
-            const std::vector<float>& input
+            const std::string& input
         );
 
         static NeuralNetworkModel& get_instance();
@@ -81,35 +111,24 @@ namespace QLogicaeAiseConsole
             const NeuralNetworkModel& instance
             ) = delete;
 
-        float* raw;
-        
-        std::array<int64_t, 2> shape;
-        
-        std::size_t total;
-        
-        std::vector<Ort::Value> outputs;
-        
-        Ort::AllocatorWithDefaultOptions alloc;
+        Ort::AllocatorWithDefaultOptions _ort_allocator;
 
-        Ort::Env env_;
+        Ort::Env _env;
         
-        Ort::SessionOptions session_options_;
+        Ort::SessionOptions _session_options;
         
-        Ort::RunOptions run_options_;
+        Ort::RunOptions _run_options;
         
-        std::unique_ptr<Ort::Session> session_;
+        std::unique_ptr<Ort::Session> _session;
 
-        Ort::MemoryInfo memory_info_;
+        Ort::MemoryInfo _memory_info;
 
-        std::string input_name_;
+        std::string _input_name;
         
-        std::string output_name_;
+        std::string _output_name;
 
-        const char* input_names_[1];
+        const char* _input_names[1];
 
-        const char* output_names_[1];
+        const char* _output_names[1];
     };
-
-    inline static NeuralNetworkModel& NEURAL_NETWORK_MODEL =
-        NeuralNetworkModel::get_instance();
 }

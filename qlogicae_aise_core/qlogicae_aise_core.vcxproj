@@ -193,6 +193,8 @@
     <ClInclude Include="qlogicae_aise_core\includes\all.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\application.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\assembly.hpp" />
+    <ClInclude Include="qlogicae_aise_core\includes\encoding_manager.hpp" />
+    <ClInclude Include="qlogicae_aise_core\includes\neural_network_model.hpp" />
     <ClInclude Include="qlogicae_aise_core\includes\utilities.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +211,8 @@
     <ClCompile Include="qlogicae_aise_core\sources\all.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\application.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\assembly.cpp" />
+    <ClCompile Include="qlogicae_aise_core\sources\encoding_manager.cpp" />
+    <ClCompile Include="qlogicae_aise_core\sources\neural_network_model.cpp" />
     <ClCompile Include="qlogicae_aise_core\sources\utilities.cpp" />
   </ItemGroup>
   <ItemGroup>

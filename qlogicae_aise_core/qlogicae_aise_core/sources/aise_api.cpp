@@ -444,10 +444,17 @@ namespace QLogicaeAiseCore
 
 					AiseApiFileLineEvaluationResults file_line_evaluation_results;
 
+					size_t line_number = 0;
+
 					while (std::getline(file_stream, line_text))
 					{
 						file_line_evaluation_results.line_text = line_text;
-						file_line_evaluation_results.line_evaluation_accuracy = 0.0;
+						file_line_evaluation_results.line_number = ++line_number;
+						file_line_evaluation_results.line_size = line_text.size();
+						file_line_evaluation_results.line_prediction =
+							NeuralNetworkModel::get_instance().predict(
+								line_text
+							);
 						file_line_evaluation_results.timestamp_end = QLogicaeCore::TIME.now();
 
 						file_result.file_line_evaluation_results.push_back(

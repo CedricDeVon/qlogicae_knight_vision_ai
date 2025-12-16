@@ -150,9 +150,7 @@ namespace QLogicaeAiseConsole
 		QLogicaeAiseCore::AISE_API.setup(
 			result,
 			QLogicaeAiseCore::AiseApiConfigurations
-			{
-
-			}
+			{}
 		);
 		if (result.is_status_unsafe())
 		{
@@ -164,6 +162,40 @@ namespace QLogicaeAiseConsole
 			return result.set_to_bad_status_without_value();
 		}
 
+		QLogicaeCore::Result<bool> boolean_result;
+		QLogicaeAiseCore::ENCODING_MANAGER.setup(
+			result
+		);
+		QLogicaeAiseCore::ENCODING_MANAGER.load_vocabulary_file_content(
+			boolean_result,
+			QLogicaeCore::UTILITIES.FULL_EXECUTABLE_FOLDER_PATH + "/qlogicae/application/ai/encodings/vocabulary.json",
+			97
+		);
+		if (result.is_status_unsafe() ||
+			boolean_result.is_status_unsafe())
+		{
+			QLogicaeCore::LOGGER.handle_exception_async(
+				"QLogicaeAiseConsole::Application::setup()",
+				"Setup failed"
+			);
+
+			return result.set_to_bad_status_without_value();
+		}
+
+		QLogicaeAiseCore::NeuralNetworkModel::get_instance().setup(
+			result,
+			QLogicaeCore::UTILITIES.FULL_EXECUTABLE_FOLDER_PATH + "/qlogicae/application/ai/models/model.onnx"
+		);
+		if (result.is_status_unsafe())
+		{
+			QLogicaeCore::LOGGER.handle_exception_async(
+				"QLogicaeAiseConsole::Application::setup()",
+				"Setup failed"
+			);
+
+			return result.set_to_bad_status_without_value();
+		}
+		
 		if (
 			!_setup_view_command() ||
 			!_setup_evaluate_command()
@@ -691,7 +723,6 @@ namespace QLogicaeAiseConsole
 						cursor_info.bVisible = TRUE;
 						SetConsoleCursorInfo(handle, &cursor_info);
 
-						/*
 						std::cout << aise_results.get_value().file_evaluation_results.size() << "\n";
 
 						for (const auto& [file_path, file_evaluation_result] :
@@ -703,13 +734,12 @@ namespace QLogicaeAiseConsole
 							{
 								std::cout << "\t" <<
 									file_line_evaluation_result.line_number << " | "
-									<< file_line_evaluation_result.line_evaluation_accuracy << " | "
+									<< file_line_evaluation_result.line_prediction << " | "
 									<< file_line_evaluation_result.line_size << " | "
 									<< file_line_evaluation_result.line_text << "\n";
 							}
 						}
-						*/
-
+						
 						LOGGER.log_complete(
 							void_result,
 							"aise evaluate",

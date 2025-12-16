@@ -1,6 +1,6 @@
 #pragma once
 
-namespace QLogicaeAiseConsole
+namespace QLogicaeAiseCore
 {
     class EncodingManager
     {
@@ -96,6 +96,8 @@ namespace QLogicaeAiseConsole
         
         int _unk_idx { -1 };
 
+        std::size_t _vocabulary_size { 0 };
+
         int _int_1;
 
         int _int_2;
@@ -128,7 +130,6 @@ namespace QLogicaeAiseConsole
         
         size_t _boc_collection_size;
 
-        std::size_t _vocabulary_size { 0 };
 
         std::unordered_map<std::string, int> _temporary_map;
 

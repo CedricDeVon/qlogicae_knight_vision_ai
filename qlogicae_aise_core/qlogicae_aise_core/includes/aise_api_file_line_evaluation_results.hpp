@@ -6,7 +6,11 @@ namespace QLogicaeAiseCore
 	{		
 		std::string line_text = "";
 
-		double line_evaluation_accuracy = 0.0;
+		size_t line_number = 0;
+
+		size_t line_size = 0;
+
+		double line_prediction = 0.0;
 
 		double timestamp_start = QLogicaeCore::TIME.now();
 
