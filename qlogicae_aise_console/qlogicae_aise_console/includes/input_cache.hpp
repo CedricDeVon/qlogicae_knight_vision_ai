@@ -22,11 +22,11 @@ namespace QLogicaeAiseConsole
 
 		InputCache& operator = (
 			InputCache&& instance
-			) = delete;
+		) = delete;
 
 		InputCache& operator = (
 			const InputCache& instance
-			) = delete;
+		) = delete;
 
 		bool setup();
 

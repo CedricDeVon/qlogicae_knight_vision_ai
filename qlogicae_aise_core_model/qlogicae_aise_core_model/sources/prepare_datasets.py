@@ -42,7 +42,7 @@ def secret_pool():
         random_entropy()
     ]
 
-
+ 
 def random_identifier():
     base = random.choice(datasets.base_values)
     transform = random.choice(datasets.base_forms)
@@ -50,40 +50,42 @@ def random_identifier():
     return transform(base)
 
 
-def safe_format(template, varname, secret):
-    n = template.count("{}")
-    if n == 1:
+def safe_format(template, variable_name, secret):
+    template_count = template.count("{}")
+    if template_count == 1:
         return template.format(secret)
 
-    if n == 2:
-        return template.format(varname, secret)
+    if template_count == 2:
+        return template.format(variable_name, secret)
 
-    if n == 3:
-        return template.format(varname, varname, secret)
+    if template_count == 3:
+        return template.format(variable_name, variable_name, secret)
 
     return template
 
 def generate_positive_sample():
     secret = random.choice(secret_pool())
     template = random.choice(datasets.positive_templates)
-    varname = random.choice(datasets.positive_varnames)
-    filled = safe_format(template, varname, secret)
+    variable_name = random.choice(datasets.positive_variable_names)
+    filled = safe_format(template, variable_name, secret)
 
     return filled, 1
 
 
 def generate_negative_sample():
     template = random.choice(datasets.negative_templates)
-    var = random_identifier()
-    token = random.choice(datasets.low_entropy_strings)
-    n = template.count("{}")
+    template_count = template.count("{}")
+    random_identifier_value = random_identifier()
+    token = random.choice(datasets.negative_variable_names)
     
-    if n == 1:
-        return template.format(var), 0
-    elif n == 2:
-        return template.format(var, token), 0
+    if template_count == 1:
+        return template.format(random_identifier_value), 0
+    
+    elif template_count == 2:
+        return template.format(random_identifier_value, token), 0
+    
     else:
-        return template.format(*([var] + [token]*(n-1))), 0
+        return template.format(*([random_identifier_value] + [token]*(template_count-1))), 0
 
 
 def generate_split(num_samples, pos_ratio):
@@ -97,7 +99,7 @@ def generate_split(num_samples, pos_ratio):
 
     return rows
 
-
+    
 def execute():
     print("> Preparing Dataset - Starts")
 
@@ -120,7 +122,7 @@ def execute():
     utilities.log_to_console("> Preparing Dataset - File Output - Starts")
     utilities.write_csv(train_rows, utilities.FULL_TRAINING_FILE_PATH)
     utilities.write_csv(test_rows, utilities.FULL_TESTING_FILE_PATH)
-    with open(utilities.FULL_VOCABULARY_FILE_PATH, "w", encoding="utf-8") as f:
+    with open(utilities.FULL_VOCABULARY_FILE_PATH, "w", encoding=utilities.ENCODING_TYPE) as f:
         json.dump(json.loads(datasets.vocabulary_json), f, indent=2, ensure_ascii=False)
     utilities.log_to_console("> Preparing Dataset - File Output - Complete")
     
@@ -161,3 +163,4 @@ def execute():
     print("")
     print("> Preparing Dataset - Complete")
     print("\n")
+

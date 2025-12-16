@@ -2,7 +2,7 @@
 
 #include "../includes/application.hpp"
 
-namespace QLogicaeKnightVisionAiModelTrainer
+namespace QLogicaeAiseCoreModel
 {
 	
 }

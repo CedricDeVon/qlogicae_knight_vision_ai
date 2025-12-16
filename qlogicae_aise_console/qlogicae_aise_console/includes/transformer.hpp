@@ -105,11 +105,11 @@ namespace QLogicaeAiseConsole
 
 		Transformer& operator = (
 			Transformer&& instance
-			) = delete;
+		) = delete;
 
 		Transformer& operator = (
 			const Transformer& instance
-			) = delete;
+		) = delete;
 	};
 
 	static inline Transformer& TRANSFORMER =

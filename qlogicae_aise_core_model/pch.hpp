@@ -99,7 +99,7 @@
 
 #include <windows.h>
 
-namespace QLogicaeKnightVisionAiModelTrainer
+namespace QLogicaeAiseCoreModel
 {
 
 }

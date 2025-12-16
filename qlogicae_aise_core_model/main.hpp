@@ -1,8 +1,5 @@
 #pragma once
 
-#include "qlogicae_knight_vision_ai_model_trainer/includes/application.hpp"
-
-#include "qlogicae_knight_vision_ai_core/includes/all.hpp"
 #include "qlogicae_core/includes/all.hpp"
 
 int main(int, char**);
@@ -17,7 +14,7 @@ int WINAPI WinMain(
     return main(__argc, __argv);
 }
 
-namespace QLogicaeKnightVisionAiModelTrainer
+namespace QLogicaeAiseCoreModel
 {
 
 }

@@ -8,43 +8,41 @@ from . import utilities
 
 
 class PasswordExposureONNX:
-    def __init__(self, onnx_path, vocab_path, vocab_size):
-        with open(vocab_path, "r", encoding="utf-8") as f:
-            raw = json.load(f)
+    def __init__(self, onnx_path, vocabulary_path, vocabulary_size):
+        with open(vocabulary_path, "r", encoding=utilities.ENCODING_TYPE) as f:
+            raw_json_data = json.load(f)
 
-        if isinstance(raw, dict):
-            self.char_to_idx = {str(k): int(v) for k, v in raw.items()}
+        if isinstance(raw_json_data, dict):
+            self.character_to_index = {str(k): int(v) for k, v in raw_json_data.items()}
         else:
-            self.char_to_idx = {ch: i for i, ch in enumerate(raw)}
+            self.character_to_index = {ch: i for i, ch in enumerate(raw_json_data)}
 
-        self.vocab_size = vocab_size
-
+        self.vocabulary_size = vocabulary_size
         self.session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
 
     def encode_boc(self, text):
-        vec = np.zeros(self.vocab_size, dtype=np.float32)
+        vector = np.zeros(self.vocabulary_size, dtype=np.float32)
 
-        unk_idx = self.char_to_idx.get("<UNK>")
-        if unk_idx is None:
-            unk_idx = self.char_to_idx.get("<unk>")
+        unk_index = self.character_to_index.get("<UNK>")
+        if unk_index is None:
+            unk_index = self.character_to_index.get("<unk>")
 
-        for ch in text:
-            idx = self.char_to_idx.get(ch)
-            if idx is not None:
-                vec[idx] += 1.0
-            elif unk_idx is not None:
-                vec[unk_idx] += 1.0
+        for character in text:
+            index = self.character_to_index.get(character)
+            if index is not None:
+                vector[index] += 1.0
+            elif unk_index is not None:
+                vector[unk_index] += 1.0
 
-        norm = np.linalg.norm(vec)
-        if norm > 0:
-            vec /= norm
+        normalized_value = np.linalg.norm(vector)
+        if normalized_value > 0:
+            vector /= normalized_value
 
-        return vec
+        return vector
 
     def predict_probabilities(self, texts):
-
         if isinstance(texts, str):
             texts = [texts]
 
@@ -55,14 +53,14 @@ class PasswordExposureONNX:
             {self.input_name: encoded}
         )
 
-        probs = outputs[0].flatten()
-        return probs
+        probabilities = outputs[0].flatten()
+        return probabilities
 
     def predict_labels(self, texts, threshold=0.5):
-        probs = self.predict_probabilities(texts)
-        labels = (probs >= threshold).astype(int)
+        probabilities = self.predict_probabilities(texts)
+        labels = (probabilities >= threshold).astype(int)
 
-        return labels, probs
+        return labels, probabilities
     
 
 def execute():    
@@ -75,20 +73,20 @@ def execute():
 
     model = PasswordExposureONNX(
         onnx_path=utilities.FULL_MODELS_ONNX_PATH,
-        vocab_path=utilities.FULL_VOCABULARY_FILE_PATH,
-        vocab_size=utilities.EXPECTED_VOCABULARY_SIZE
+        vocabulary_path=utilities.FULL_VOCABULARY_FILE_PATH,
+        vocabulary_size=utilities.EXPECTED_VOCABULARY_SIZE
     )
 
     examples = []
     true_labels = []
 
-    with open(utilities.FULL_TESTING_FILE_PATH, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+    with open(utilities.FULL_TESTING_FILE_PATH, "r", encoding=utilities.ENCODING_TYPE) as file:
+        reader = csv.DictReader(file)
         for row in reader:
             examples.append(row["file_content"])
             true_labels.append(int(row["label"]))
 
-    labels, probs = model.predict_labels(examples)
+    labels, probabilities = model.predict_labels(examples)
 
     correct_sample_predictions = 0
     total_samples = len(true_labels)
@@ -97,19 +95,19 @@ def execute():
     if (utilities.IS_TESTING_MODEL_OUTPUT_VERBOSE_ENABLED):    
         print("> Wrong Predictions: ")
 
-    for text, true_lab, pred_lab, pr in tqdm(
-        list(zip(examples, true_labels, labels, probs)),
+    for text, true_label, predicted_label, probability in tqdm(
+        list(zip(examples, true_labels, labels, probabilities)),
         total=total_samples,
         desc="Progress"
     ):
-        if true_lab == pred_lab:
+        if true_label == predicted_label:
             correct_sample_predictions += 1
 
-        if (utilities.IS_TESTING_MODEL_OUTPUT_VERBOSE_ENABLED and (true_lab != pred_lab)):
+        if (utilities.IS_TESTING_MODEL_OUTPUT_VERBOSE_ENABLED and (true_label != predicted_label)):
             print("Text:", text)
-            print("Actual Label:", true_lab)
-            print("Predicted Label:", pred_lab)
-            print("Probability:", pr)
+            print("Actual Label:", true_label)
+            print("Predicted Label:", predicted_label)
+            print("Probability:", probability)
             print("")
 
     wrong_sample_predictions = total_samples - correct_sample_predictions
@@ -126,5 +124,4 @@ def execute():
     print("")
     print("> Testing Model - Complete")
     print("\n")
-
 

@@ -15,19 +15,20 @@ from torch.utils.data import Dataset, DataLoader, random_split
 
 from . import utilities
 
+
 class CodeLineDataset(Dataset):
-    def __init__(self, csv_path, vocabulary_path, vocabulary_size):
+    def __init__(self, csv_file_path, vocabulary_file_path, vocabulary_size):
         self.vocabulary_size = vocabulary_size
         self.rows = []
-        with open(csv_path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
+        with open(csv_file_path, "r", encoding=utilities.ENCODING_TYPE) as file:
+            reader = csv.DictReader(file)
             for r in reader:
                 text = r["file_content"]
                 label = float(r["label"])
                 self.rows.append((text, label))
 
-        with open(vocabulary_path, "r", encoding="utf-8") as vf:
-            raw = json.load(vf)
+        with open(vocabulary_file_path, "r", encoding=utilities.ENCODING_TYPE) as file:
+            raw = json.load(file)
 
         if isinstance(raw, dict):
             max_index = max(raw.values())
@@ -36,13 +37,17 @@ class CodeLineDataset(Dataset):
                 raise ValueError(
                     f"vocab.json indicates size {inferred_size} but expected {vocabulary_size}"
                 )
+
             self.char_to_idx = {str(k): int(v) for k, v in raw.items()}
+
         elif isinstance(raw, list):
             if len(raw) != vocabulary_size:
                 raise ValueError(
                     f"vocab.json length {len(raw)} does not match expected {vocabulary_size}"
                 )
+
             self.char_to_idx = {ch: i for i, ch in enumerate(raw)}
+
         else:
             raise ValueError("vocab.json must be either a dict or a list")
 
@@ -69,12 +74,14 @@ class CodeLineDataset(Dataset):
         for ch in text:
             if ch in self.char_to_idx:
                 cnt[self.char_to_idx[ch]] += 1.0
+
             elif unk_idx is not None:
                 cnt[unk_idx] += 1.0
 
         norm = cnt.norm(p=2)
         if norm > 0:
             cnt = cnt / norm
+
         return cnt
 
     def __len__(self):
@@ -111,8 +118,8 @@ def execute():
     utilities.prepare_folder_recursively(utilities.RELATIVE_ROOT_MODELS_PATH)
     utilities.prepare_folder_recursively(utilities.FULL_LOGS_TRAINING_LOG_FOLDER_PATH)
 
-    csv_path = utilities.FULL_TRAINING_FILE_PATH
-    vocabulary_path = utilities.FULL_VOCABULARY_FILE_PATH
+    csv_file_path = utilities.FULL_TRAINING_FILE_PATH
+    vocabulary_file_path = utilities.FULL_VOCABULARY_FILE_PATH
     total_epochs = utilities.MAXIMUM_TRAINING_EPOCH
     batch_size = utilities.BATCH_SIZE
     lr = utilities.MAXIMUM_LEARNING_RATE
@@ -120,7 +127,7 @@ def execute():
     device = utilities.DEVICE_TYPE
     vocabulary_size = utilities.EXPECTED_VOCABULARY_SIZE
 
-    ds = CodeLineDataset(csv_path, vocabulary_path, vocabulary_size)
+    ds = CodeLineDataset(csv_file_path, vocabulary_file_path, vocabulary_size)
     dataset_size = len(ds)
     val_size = int(math.floor(value_split * dataset_size))
     train_size = dataset_size - val_size
@@ -128,7 +135,7 @@ def execute():
     train_ds, val_ds = random_split(ds, [train_size, val_size])
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_ds, batch_size=batch_size)
+    value_loader = DataLoader(val_ds, batch_size=batch_size)
 
     model = ExposureNet(ds.vocabulary_size).to(device)
     criterion = nn.BCELoss()
@@ -148,15 +155,15 @@ def execute():
     learning_rate_history = []
     learning_duration_history = []
 
-    csv_log_path = utilities.FULL_LOGS_TRAINING_LOG_CSV_FILE_PATH
-    json_log_path = utilities.FULL_LOGS_TRAINING_LOG_JSON_FILE_PATH
-    model_pth_path = utilities.FULL_MODELS_PTH_PATH
-    model_onnx_path = utilities.FULL_MODELS_ONNX_PATH
+    csv_log_file_path = utilities.FULL_LOGS_TRAINING_LOG_CSV_FILE_PATH
+    json_log_file_path = utilities.FULL_LOGS_TRAINING_LOG_JSON_FILE_PATH
+    model_pth_file_path = utilities.FULL_MODELS_PTH_PATH
+    model_onnx_file_path = utilities.FULL_MODELS_ONNX_PATH
 
-    csv_log = open(csv_log_path, "w", newline="", encoding="utf-8")
+    csv_log = open(csv_log_file_path, "w", newline="", encoding=utilities.ENCODING_TYPE)
     csv_writer = csv.writer(csv_log)
     csv_writer.writerow(
-        ["epoch", "training_loss", "training_accuracy", "value_loss", "value_accuracy", "learning_rate"]
+        utilities.TRAINING_CSV_OUTPUT_HEADERS
     )
 
     json_history = []
@@ -200,7 +207,7 @@ def execute():
         val_correct = 0
         val_count = 0
         with torch.no_grad():
-            for xb, yb in val_loader:
+            for xb, yb in value_loader:
                 xb = xb.to(device)
                 yb = yb.to(device)
                 probs = model(xb)
@@ -249,11 +256,11 @@ def execute():
 
         best_val_loss = value_loss
         best_epoch = epoch
-        torch.save(model.state_dict(), model_pth_path)
+        torch.save(model.state_dict(), model_pth_file_path)
 
     utilities.log_to_console(f"> Training Model - Saving Log Files - Starts")
-    with open(json_log_path, "w", encoding="utf-8") as jf:
-        json.dump(json_history, jf, indent=2)
+    with open(json_log_file_path, "w", encoding=utilities.ENCODING_TYPE) as file:
+        json.dump(json_history, file, indent=2)
     csv_log.close()      
     utilities.save_plot_png(
         title='Learning Rate Over Time',
@@ -354,25 +361,25 @@ def execute():
     utilities.log_to_console(f"> Training Model - Saving Log Files - Complete")
 
 
-    utilities.log_to_console(f"> Training Model - Saving PyTorch Model '{model_pth_path}' - Starts")
-    torch.save(model.state_dict(), model_pth_path)
-    utilities.log_to_console(f"> Training Model - Saving PyTorch Model '{model_pth_path}' - Complete")
+    utilities.log_to_console(f"> Training Model - Saving PyTorch Model '{model_pth_file_path}' - Starts")
+    torch.save(model.state_dict(), model_pth_file_path)
+    utilities.log_to_console(f"> Training Model - Saving PyTorch Model '{model_pth_file_path}' - Complete")
 
-    model.load_state_dict(torch.load(model_pth_path, map_location=device, weights_only=True))
+    model.load_state_dict(torch.load(model_pth_file_path, map_location=device, weights_only=True))
     model.eval()
     dummy = torch.randn(1, utilities.EXPECTED_VOCABULARY_SIZE, device=device)
 
-    utilities.log_to_console(f"> Training Model - Saving ONNX Model '{model_onnx_path}' - Starts")
+    utilities.log_to_console(f"> Training Model - Saving ONNX Model '{model_onnx_file_path}' - Starts")
     torch.onnx.export(
         model,
         dummy,
-        model_onnx_path,
+        model_onnx_file_path,
         input_names=["input"],
         output_names=["prob"],
         dynamic_axes={"input": {0: "batch_size"}, "prob": {0: "batch_size"}},
         opset_version=17,
     )
-    utilities.log_to_console(f"> Training Model - Saving ONNX Model '{model_onnx_path}' - Complete")
+    utilities.log_to_console(f"> Training Model - Saving ONNX Model '{model_onnx_file_path}' - Complete")
     print("")
     print("> Training Model - Complete")
     print("\n")

@@ -2,7 +2,7 @@
 
 #include "../includes/application.hpp"
 
-namespace QLogicaeKnightVisionAiCoreSandbox
+namespace QLogicaeAiseCoreSandbox
 {
 	
 }

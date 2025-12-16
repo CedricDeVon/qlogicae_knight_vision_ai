@@ -2,7 +2,7 @@
 
 #include "../includes/all.hpp"
 
-namespace QLogicaeKnightVisionAiCoreTest
+namespace QLogicaeAiseCoreTest
 {
 
 }

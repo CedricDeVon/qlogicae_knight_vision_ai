@@ -7,9 +7,12 @@
 #include <absl/strings/str_cat.h>
 #include <absl/strings/str_replace.h>
 
+#pragma warning(push)
+#pragma warning(disable: 4267)
 #include <indicators/cursor_control.hpp>
 #include <indicators/progress_spinner.hpp>
 #include <indicators/block_progress_bar.hpp>
+#pragma warning(pop)
 
 #include <nlohmann/json.hpp>
 #include <onnxruntime_cxx_api.h>
@@ -132,7 +135,6 @@
 #include "qlogicae_aise_core/includes/aise_api_file_line_evaluation_results.hpp"
 #include "qlogicae_aise_core/includes/aise_api_file_system_evaluation_results.hpp"
 #include "qlogicae_aise_core/includes/aise_api_file_system_evaluation_configurations.hpp"
-
 
 namespace QLogicaeAiseConsole
 {

@@ -5,6 +5,5 @@ namespace QLogicaeAiseCore
 	struct AiseApiConfigurations
 	{
 
-
 	};
 }

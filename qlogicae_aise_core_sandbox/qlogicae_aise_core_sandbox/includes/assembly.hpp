@@ -1,6 +1,6 @@
 #pragma once
 
-namespace QLogicaeKnightVisionAiCoreSandbox
+namespace QLogicaeAiseCoreSandbox
 {
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace QLogicaeKnightVisionAiCoreBenchmark
+namespace QLogicaeAiseCoreBenchmark
 {
 
 }

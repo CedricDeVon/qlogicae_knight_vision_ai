@@ -5,7 +5,7 @@
 
 #include "application.hpp"
 
-namespace QLogicaeKnightVisionAiCoreSandbox
+namespace QLogicaeAiseCoreSandbox
 {
 
 }

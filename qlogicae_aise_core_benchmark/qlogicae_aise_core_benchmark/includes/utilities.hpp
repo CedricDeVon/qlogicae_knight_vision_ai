@@ -2,7 +2,7 @@
 
 #include "assembly.hpp"
 
-namespace QLogicaeKnightVisionAiCoreBenchmark
+namespace QLogicaeAiseCoreBenchmark
 {
 
 }

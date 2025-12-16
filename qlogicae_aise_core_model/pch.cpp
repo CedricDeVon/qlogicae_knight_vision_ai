@@ -1,6 +1,6 @@
 #include "pch.hpp"
 
-namespace QLogicaeKnightVisionAiModelTrainer
+namespace QLogicaeAiseCoreModel
 {
 
 }

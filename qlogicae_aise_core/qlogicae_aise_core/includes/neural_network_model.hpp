@@ -105,11 +105,11 @@ namespace QLogicaeAiseCore
 
         NeuralNetworkModel& operator = (
             NeuralNetworkModel&& instance
-            ) = delete;
+        ) = delete;
 
         NeuralNetworkModel& operator = (
             const NeuralNetworkModel& instance
-            ) = delete;
+        ) = delete;
 
         Ort::AllocatorWithDefaultOptions _ort_allocator;
 

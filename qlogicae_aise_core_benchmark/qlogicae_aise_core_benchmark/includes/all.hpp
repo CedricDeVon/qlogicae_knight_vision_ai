@@ -5,7 +5,7 @@
 
 #include "application.hpp"
 
-namespace QLogicaeKnightVisionAiCoreBenchmark
+namespace QLogicaeAiseCoreBenchmark
 {
 
 }

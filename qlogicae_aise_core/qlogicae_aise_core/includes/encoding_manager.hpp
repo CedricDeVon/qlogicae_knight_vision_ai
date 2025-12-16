@@ -130,7 +130,6 @@ namespace QLogicaeAiseCore
         
         size_t _boc_collection_size;
 
-
         std::unordered_map<std::string, int> _temporary_map;
 
         nlohmann::json _json_file_output;
