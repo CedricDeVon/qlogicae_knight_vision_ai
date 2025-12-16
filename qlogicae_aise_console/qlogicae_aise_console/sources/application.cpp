@@ -735,7 +735,7 @@ namespace QLogicaeAiseConsole
 								std::cout << "\t" <<
 									file_line_evaluation_result.line_number << " | "
 									<< file_line_evaluation_result.line_prediction << " | "
-									<< file_line_evaluation_result.line_size << " | "
+									// << file_line_evaluation_result.line_size << " | "
 									<< file_line_evaluation_result.line_text << "\n";
 							}
 						}

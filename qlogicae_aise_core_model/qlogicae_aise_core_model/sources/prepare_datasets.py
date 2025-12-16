@@ -63,7 +63,6 @@ def safe_format(template, varname, secret):
 
     return template
 
-
 def generate_positive_sample():
     secret = random.choice(secret_pool())
     template = random.choice(datasets.positive_templates)
@@ -78,13 +77,13 @@ def generate_negative_sample():
     var = random_identifier()
     token = random.choice(datasets.low_entropy_strings)
     n = template.count("{}")
+    
     if n == 1:
         return template.format(var), 0
-
-    if n == 2:
+    elif n == 2:
         return template.format(var, token), 0
-
-    return template.format(*([var] + [token]*(n-1))), 0
+    else:
+        return template.format(*([var] + [token]*(n-1))), 0
 
 
 def generate_split(num_samples, pos_ratio):
