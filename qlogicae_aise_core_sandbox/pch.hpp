@@ -1,8 +1,11 @@
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable: 4267)
 #include <indicators/cursor_control.hpp>
 #include <indicators/progress_spinner.hpp>
 #include <indicators/block_progress_bar.hpp>
+#pragma warning(pop)
 
 #include <any>
 #include <compare>
@@ -103,7 +106,6 @@
 
 #include <windows.h>
 
-#include "qlogicae_aise_core/includes/all.hpp"
 #include "qlogicae_core/includes/all.hpp"
 
 namespace QLogicaeAiseCoreSandbox

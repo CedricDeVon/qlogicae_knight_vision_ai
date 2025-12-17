@@ -379,7 +379,6 @@ namespace QLogicaeAiseCore
 	{
 		std::vector<float> boc_collection(_vocabulary_size, 0.0f);
 
-		const int unk = _unk_idx;
 		const int* lut = _lut;
 
 		const unsigned char* p = reinterpret_cast<const unsigned char*>(text.data());
@@ -395,10 +394,10 @@ namespace QLogicaeAiseCore
 			index_3 = lut[p[2]];
 			index_4 = lut[p[3]];
 
-			if (index_1 >= 0) boc_collection[index_1] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
-			if (index_2 >= 0) boc_collection[index_2] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
-			if (index_3 >= 0) boc_collection[index_3] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
-			if (index_4 >= 0) boc_collection[index_4] += 1.0f; else if (unk >= 0) boc_collection[unk] += 1.0f;
+			if (index_1 >= 0) boc_collection[index_1] += 1.0f; else if (_unk_idx >= 0) boc_collection[_unk_idx] += 1.0f;
+			if (index_2 >= 0) boc_collection[index_2] += 1.0f; else if (_unk_idx >= 0) boc_collection[_unk_idx] += 1.0f;
+			if (index_3 >= 0) boc_collection[index_3] += 1.0f; else if (_unk_idx >= 0) boc_collection[_unk_idx] += 1.0f;
+			if (index_4 >= 0) boc_collection[index_4] += 1.0f; else if (_unk_idx >= 0) boc_collection[_unk_idx] += 1.0f;
 
 			p += 4;
 		}
@@ -407,7 +406,7 @@ namespace QLogicaeAiseCore
 		{
 			index_5 = lut[*p];
 			if (index_5 >= 0) boc_collection[index_5] += 1.0f;
-			else if (unk >= 0) boc_collection[unk] += 1.0f;
+			else if (_unk_idx >= 0) boc_collection[_unk_idx] += 1.0f;
 			++p;
 		}
 

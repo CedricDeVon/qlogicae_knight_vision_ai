@@ -2,6 +2,15 @@
 
 #include "gtest/gtest.h"
 
+#include <fast_io.h>
+#include <fast_io_device.h>
+
+#include <absl/strings/str_cat.h>
+#include <absl/strings/str_replace.h>
+
+#include <nlohmann/json.hpp>
+#include <onnxruntime_cxx_api.h>
+
 #include <any>
 #include <compare>
 #include <variant>
@@ -100,6 +109,9 @@
 #include <cstring>
 
 #include <windows.h>
+
+#include "qlogicae_core/includes/all.hpp"
+#include "qlogicae_aise_core/includes/all.hpp"
 
 namespace QLogicaeAiseCoreTest
 {

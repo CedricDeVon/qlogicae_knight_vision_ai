@@ -6,9 +6,13 @@ namespace QLogicaeAiseCore
 {
 	struct AiseApiFileSystemEvaluationResults
 	{
-		std::unordered_map<std::string, AiseApiFileEvaluationResults> file_evaluation_results;
+		std::unordered_map<std::string, AiseApiFileEvaluationResults> file_evaluation_results = {};
 
-		std::unordered_map<std::string, AiseApiFileEvaluationResults> positive_file_evaluation_results;
+		std::unordered_map<std::string, AiseApiFileEvaluationResults> positive_file_evaluation_results = {};
+
+		std::size_t total_folders_found_count = 0;
+
+		std::size_t total_files_found_count = 0;
 
 		std::size_t total_line_count = 0;
 

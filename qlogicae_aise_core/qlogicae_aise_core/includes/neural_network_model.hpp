@@ -130,5 +130,13 @@ namespace QLogicaeAiseCore
         const char* _input_names[1];
 
         const char* _output_names[1];
+
+        std::vector<float> _boc_collection;
+
+        std::size_t _boc_collection_size;
+
+        std::array<int64_t, 2> _shape;
+
+        Ort::Value _tensor { nullptr };
     };
 }

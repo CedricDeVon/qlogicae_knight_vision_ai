@@ -258,8 +258,8 @@ def execute():
         best_epoch = epoch
         torch.save(model.state_dict(), model_pth_file_path)
 
-    utilities.log_to_console(f"> Training Model - Saving Log Files - Starts")
-    with open(json_log_file_path, "w", encoding=utilities.ENCODING_TYPE) as file:
+    utilities.log_to_console(f'> Training Model - Saving Log Files - Starts')
+    with open(json_log_file_path, 'w', encoding=utilities.ENCODING_TYPE) as file:
         json.dump(json_history, file, indent=2)
     csv_log.close()      
     utilities.save_plot_png(
@@ -358,31 +358,55 @@ def execute():
     )
 
 
-    utilities.log_to_console(f"> Training Model - Saving Log Files - Complete")
+    utilities.log_to_console(f'> Training Model - Saving Log Files - Complete')
 
-
-    utilities.log_to_console(f"> Training Model - Saving PyTorch Model '{model_pth_file_path}' - Starts")
-    torch.save(model.state_dict(), model_pth_file_path)
-    utilities.log_to_console(f"> Training Model - Saving PyTorch Model '{model_pth_file_path}' - Complete")
-
-    model.load_state_dict(torch.load(model_pth_file_path, map_location=device, weights_only=True))
-    model.eval()
+    # utilities.log_to_console(f'> Training Model - Saving PyTorch Model "{model_pth_file_path}" - Starts')
+    # torch.save(model.state_dict(), model_pth_file_path)
+    # utilities.log_to_console(f'> Training Model - Saving PyTorch Model "{model_pth_file_path}" - Complete')
+    # model.load_state_dict(torch.load(model_pth_file_path, map_location=device, weights_only=True))
+    # model.eval()
     dummy = torch.randn(1, utilities.EXPECTED_VOCABULARY_SIZE, device=device)
 
-    utilities.log_to_console(f"> Training Model - Saving ONNX Model '{model_onnx_file_path}' - Starts")
+    utilities.log_to_console(f'> Training Model - Saving ONNX Model "{model_onnx_file_path}" - Starts')
     torch.onnx.export(
         model,
         dummy,
         model_onnx_file_path,
-        input_names=["input"],
-        output_names=["prob"],
-        dynamic_axes={"input": {0: "batch_size"}, "prob": {0: "batch_size"}},
+        input_names=['input'],
+        output_names=['prob'],
+        dynamic_axes={'input': {0: 'batch_size'}, 'prob': {0: 'batch_size'}},
         opset_version=17,
     )
-    utilities.log_to_console(f"> Training Model - Saving ONNX Model '{model_onnx_file_path}' - Complete")
-    print("")
-    print("> Training Model - Complete")
-    print("\n")
+    torch.onnx.export(
+        model,
+        dummy,
+        'qlogicae_aise_core_test/model.onnx',
+        input_names=['input'],
+        output_names=['prob'],
+        dynamic_axes={'input': {0: 'batch_size'}, 'prob': {0: 'batch_size'}},
+        opset_version=17,
+    )
+    torch.onnx.export(
+        model,
+        dummy,
+        'qlogicae_aise_core_benchmark/model.onnx',
+        input_names=['input'],
+        output_names=['prob'],
+        dynamic_axes={'input': {0: 'batch_size'}, 'prob': {0: 'batch_size'}},
+        opset_version=17,
+    )
+    torch.onnx.export(
+        model,
+        dummy,
+        'qlogicae_aise_core_sandbox/model.onnx',
+        input_names=['input'],
+        output_names=['prob'],
+        dynamic_axes={'input': {0: 'batch_size'}, 'prob': {0: 'batch_size'}},
+        opset_version=17,
+    )
+    utilities.log_to_console(f'> Training Model - Saving ONNX Model "{model_onnx_file_path}" - Complete')
+    print('')
+    print('> Training Model - Complete')
+    print('\n')
 
     return model, ds.char_to_idx
-

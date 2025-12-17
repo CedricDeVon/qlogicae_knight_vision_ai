@@ -122,8 +122,18 @@ def execute():
     utilities.log_to_console("> Preparing Dataset - File Output - Starts")
     utilities.write_csv(train_rows, utilities.FULL_TRAINING_FILE_PATH)
     utilities.write_csv(test_rows, utilities.FULL_TESTING_FILE_PATH)
-    with open(utilities.FULL_VOCABULARY_FILE_PATH, "w", encoding=utilities.ENCODING_TYPE) as f:
-        json.dump(json.loads(datasets.vocabulary_json), f, indent=2, ensure_ascii=False)
+    with open(utilities.FULL_VOCABULARY_FILE_PATH, "w", encoding=utilities.ENCODING_TYPE) as file:
+        json.dump(json.loads(datasets.vocabulary_json), file, indent=2, ensure_ascii=False)
+
+    with open('qlogicae_aise_core_sandbox/vocabulary.json', "w", encoding=utilities.ENCODING_TYPE) as file:
+        json.dump(json.loads(datasets.vocabulary_json), file, indent=2, ensure_ascii=False)
+
+    with open('qlogicae_aise_core_test/vocabulary.json', "w", encoding=utilities.ENCODING_TYPE) as file:
+        json.dump(json.loads(datasets.vocabulary_json), file, indent=2, ensure_ascii=False)
+
+    with open('qlogicae_aise_core_benchmark/vocabulary.json', "w", encoding=utilities.ENCODING_TYPE) as file:
+        json.dump(json.loads(datasets.vocabulary_json), file, indent=2, ensure_ascii=False)
+
     utilities.log_to_console("> Preparing Dataset - File Output - Complete")
     
     training_sample_count = len(train_rows)

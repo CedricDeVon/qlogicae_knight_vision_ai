@@ -440,33 +440,43 @@ namespace QLogicaeAiseCore
 		const std::string& input
 	)
 	{
-		std::vector<float> boc_collection =
+		_boc_collection =
 			ENCODING_MANAGER.from_string_to_boc(
 				input
 			);
-		std::array<int64_t, 2> shape = { 1, static_cast<int64_t>(boc_collection.size()) };
-		std::size_t total = boc_collection.size();
 
-		Ort::Value tensor = Ort::Value::CreateTensor<float>(
-			_memory_info,
-			const_cast<float*>(boc_collection.data()),
-			total,
-			shape.data(),
-			shape.size());
+		_boc_collection_size =
+			_boc_collection.size();
 
-		std::vector<Ort::Value> outputs = _session->Run(
-			_run_options,
-			_input_names,
-			&tensor,
+		_shape =
+		{
 			1,
-			_output_names,
-			1
+			static_cast<int64_t>(_boc_collection_size)
+		};
+		
+		_tensor =
+			Ort::Value::CreateTensor<float>(
+			_memory_info,
+			const_cast<float*>(
+				_boc_collection.data()
+			),
+			_boc_collection_size,
+			_shape.data(),
+			_shape.size()
 		);
 
-		float* raw = outputs.front().GetTensorMutableData<float>();
-
 		result.set_to_good_status_with_value(
-			static_cast<double>(*raw)
+			static_cast<double>(
+				*(_session->Run(
+					_run_options,
+					_input_names,
+					&_tensor,
+					1,
+					_output_names,
+					1
+				)).front()
+					.GetTensorMutableData<float>()
+			)
 		);
 	}
 

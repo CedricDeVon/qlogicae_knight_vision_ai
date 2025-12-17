@@ -110,6 +110,8 @@ namespace QLogicaeAiseCore
         
         size_t _index_4;
 
+        size_t _index_5;
+
         size_t _lutsize = 256;
         
         float _float_1;
@@ -123,6 +125,8 @@ namespace QLogicaeAiseCore
         float _boc_inv;
 
         float _boc_sum = 0.0f;
+
+        float _inv;
         
         std::string _string_1;
         

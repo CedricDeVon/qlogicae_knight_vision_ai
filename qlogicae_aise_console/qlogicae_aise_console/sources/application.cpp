@@ -570,7 +570,7 @@ namespace QLogicaeAiseConsole
 			CLI::App* evaluate_command =
 				UTILITIES.CLI_APPLICATION.add_subcommand(
 					"evaluate",
-					"evaluations"
+					"evaluate .hpp and .cpp files within the current executed path"
 				);
 			evaluate_command->alias("e");
 			
@@ -601,6 +601,18 @@ namespace QLogicaeAiseConsole
 				->default_val(1);
 
 			evaluate_command
+				->add_option("--is-overview-visible",
+					BOOLEAN_INPUTS.get("evaluate", "is_overview_visible"),
+					"enables or disables evaluation overview information display")
+				->default_val(true);
+
+			evaluate_command
+				->add_option("--is-positive-line-prediction-visible",
+					BOOLEAN_INPUTS.get("evaluate", "is_positive_line_prediction_visible"),
+					"enables or disables positive line prediction information display")
+				->default_val(true);
+
+			evaluate_command
 				->add_option("--is-verbose",
 					BOOLEAN_INPUTS.get("evaluate", "is_verbose"),
 					"enables or disables verbose console logging")
@@ -611,10 +623,15 @@ namespace QLogicaeAiseConsole
 				[this]() -> bool
 				{					
 					bool
-						evaluate_command__is_verbose;
+						evaluate_command__is_verbose,
+						evaluate_command__is_overview_visible,
+						evaluate_command__is_positive_line_prediction_visible;
 
 					size_t
 						total_line_count,
+						total_files_found_count,
+						total_files_parsed_count,
+						total_folders_found_count,
 						total_positive_prediction_count,
 						total_negative_prediction_count;
 
@@ -650,6 +667,17 @@ namespace QLogicaeAiseConsole
 						BOOLEAN_INPUTS.get(
 							"evaluate", "is_verbose"
 						);
+
+					evaluate_command__is_overview_visible =
+						BOOLEAN_INPUTS.get(
+							"evaluate", "is_overview_visible"
+						);
+
+					evaluate_command__is_positive_line_prediction_visible =
+						BOOLEAN_INPUTS.get(
+							"evaluate", "is_positive_line_prediction_visible"
+						);
+
 					evaluate_command__path =
 						STRING_INPUTS.get(
 							"evaluate", "path"
@@ -776,30 +804,40 @@ namespace QLogicaeAiseConsole
 							}
 						);
 
+						QLogicaeAiseCore::AiseApiFileSystemEvaluationResults& aise_results_pointer =
+							aise_results.get_value();
+
 						total_line_count =
-							aise_results.get_value().total_line_count;
+							aise_results_pointer.total_line_count;
 						total_positive_prediction_count =
-							aise_results.get_value().total_positive_prediction_count;
+							aise_results_pointer.total_positive_prediction_count;
 						total_negative_prediction_count =
 							total_line_count - total_positive_prediction_count;
 
 						total_timestamp_start =
-							aise_results.get_value().timestamp_start;
+							aise_results_pointer.timestamp_start;
 						total_timestamp_end =
-							aise_results.get_value().timestamp_end;
+							aise_results_pointer.timestamp_end;
+
+						total_folders_found_count =
+							aise_results_pointer.total_folders_found_count;
+						total_files_found_count =
+							aise_results_pointer.total_files_found_count;
+						total_files_parsed_count =
+							aise_results_pointer.file_evaluation_results.size();
 
 						total_positive_prediction_count_ratio =
 							(total_line_count) ?
-								(static_cast<double>(total_positive_prediction_count) / static_cast<double>(total_line_count)) :
-								0;
+							(static_cast<double>(total_positive_prediction_count) / static_cast<double>(total_line_count)) :
+							0;
 
 						total_positive_prediction_count_percentage =
 							(total_positive_prediction_count_ratio) * 100;
 
 						total_negative_prediction_count_ratio =
 							(total_line_count) ?
-								static_cast<double>(total_negative_prediction_count) / static_cast<double>(total_line_count) :
-								0;
+							static_cast<double>(total_negative_prediction_count) / static_cast<double>(total_line_count) :
+							0;
 						total_negative_prediction_count_percentage =
 							(total_negative_prediction_count_ratio) * 100;
 
@@ -853,6 +891,27 @@ namespace QLogicaeAiseConsole
 
 						summary_table.add_row(
 							{
+								"Folders Found",
+								std::to_string(
+									total_folders_found_count
+								)
+							}
+						);
+
+						summary_table.add_row(
+							{
+								"Files Found and Parsed",
+								std::to_string(
+									total_files_found_count
+								) + " | " +
+								std::to_string(
+									total_files_parsed_count
+								)
+							}
+						);
+
+						summary_table.add_row(
+							{
 								"Line Count",
 								std::to_string(
 									total_line_count
@@ -898,12 +957,17 @@ namespace QLogicaeAiseConsole
 							.border_right("|")
 							.corner("+");
 
-						output_stream << summary_table;
+						if (evaluate_command__is_overview_visible)
+						{
+							output_stream << summary_table;
+						}
 
-						if (aise_results.get_value().total_positive_prediction_count)
-						{							
+						if (evaluate_command__is_positive_line_prediction_visible &&
+							aise_results_pointer.total_positive_prediction_count
+						)
+						{
 							for (const auto& [file_path, file_evaluation_result] :
-								aise_results.get_value().positive_file_evaluation_results
+								aise_results_pointer.positive_file_evaluation_results
 							)
 							{
 								tabulate::Table file_table;

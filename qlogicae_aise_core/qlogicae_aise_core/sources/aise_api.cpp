@@ -386,13 +386,41 @@ namespace QLogicaeAiseCore
 		const AiseApiFileSystemEvaluationConfigurations& configurations
 	)
 	{
-		std::mutex results_mutex;
-		std::vector<std::future<void>> future_collection;
-		AiseApiFileSystemEvaluationResults file_system_evaluation_results;
-		AiseApiFileSystemEvaluationCallbackConfigurationsResults callback_configurations_results;		
+		std::string
+			file_extension,
+			file_system_entity_path_string;
+		
+		std::mutex
+			results_mutex;
+
+		bool
+			extension_matched;
+
+		double
+			minimum_positive_prediction =
+				configurations.minimum_positive_prediction,
+			maximum_positive_prediction =
+				configurations.maximum_positive_prediction;
+		
+		std::filesystem::path
+			file_system_entity_path;
+
+		std::vector<std::future<void>>
+			future_collection;
+		
+		AiseApiFileSystemEvaluationResults
+			file_system_evaluation_results;
+		
+		AiseApiFileSystemEvaluationCallbackConfigurationsResults
+			callback_configurations_results;		
+
+		NeuralNetworkModel& neural_network_model =
+			NeuralNetworkModel::get_instance();
 
 		callback_configurations_results.text = "  Evaluating Files";
-		configurations.file_evaluation_callback(callback_configurations_results);
+		configurations.file_evaluation_callback(
+			callback_configurations_results
+		);
 
 		for (const auto& file_system_entity :
 			std::filesystem::recursive_directory_iterator(
@@ -402,17 +430,21 @@ namespace QLogicaeAiseCore
 		{
 			if (!file_system_entity.is_regular_file())
 			{
+				++file_system_evaluation_results.total_folders_found_count;
 				continue;
 			}
 
-			auto file_system_entity_path =
+			++file_system_evaluation_results.total_files_found_count;
+
+			file_system_entity_path =
 				file_system_entity.path();
-			auto file_extension =
+			file_extension =
 				file_system_entity_path.extension().string();
-			std::string file_system_entity_path_string =
+			file_system_entity_path_string =
 				file_system_entity_path.string();
 
-			bool extension_matched = !configurations.expected_file_extensions.size();
+			extension_matched =
+				!configurations.expected_file_extensions.size();
 			for (const auto& expected_file_extension :
 				configurations.expected_file_extensions
 				)
@@ -427,63 +459,93 @@ namespace QLogicaeAiseCore
 			if (!extension_matched)
 			{
 				continue;
-			}
+			}			
 
 			std::promise<void> file_promise;
-			future_collection.emplace_back(file_promise.get_future());
+			future_collection.emplace_back(
+				file_promise.get_future()
+			);
 
 			boost::asio::post(
 				QLogicaeCore::UTILITIES.BOOST_ASIO_POOL,
 				[this,
-				file_system_entity_path_string,
-				&configurations,
-				&file_system_evaluation_results,
 				&results_mutex,
+				&configurations,
+				&neural_network_model,
+				&minimum_positive_prediction,
+				&maximum_positive_prediction,
+				&file_system_evaluation_results,
+				file_system_entity_path_string,
 				file_promise = std::move(file_promise)]() mutable
 				{
-					std::lock_guard<std::mutex> lock(results_mutex);
+					std::lock_guard<std::mutex>
+						lock(results_mutex);
+
+					size_t
+						line_number = 0;
+
+					std::string
+						line_text;
 
 					auto& file_result =
-						file_system_evaluation_results.file_evaluation_results[file_system_entity_path_string];
+						file_system_evaluation_results
+							.file_evaluation_results[file_system_entity_path_string];
 
-					std::ifstream file_stream(file_system_entity_path_string);
-					std::string line_text;
+					double
+						line_prediction;
 
-					AiseApiFileLineEvaluationResults file_line_evaluation_results;
+					std::ifstream
+						file_stream(file_system_entity_path_string);
 
-					size_t line_number = 0;
+					AiseApiFileLineEvaluationResults
+						file_line_evaluation_results;
+
 
 					while (std::getline(file_stream, line_text))
 					{
-						file_line_evaluation_results.line_text = line_text;
-						file_line_evaluation_results.line_number = ++line_number;
-						file_line_evaluation_results.line_prediction =
-							NeuralNetworkModel::get_instance().predict(
+						line_prediction =
+							neural_network_model.predict(
 								line_text
 							);
-						file_line_evaluation_results.timestamp_end = QLogicaeCore::TIME.now();
 
-						if (configurations.minimum_positive_prediction <= file_line_evaluation_results.line_prediction &&
-							file_line_evaluation_results.line_prediction <= configurations.maximum_positive_prediction
+						file_line_evaluation_results.line_text =
+							line_text;
+						
+						file_line_evaluation_results.line_number =
+							++line_number;
+						
+						file_line_evaluation_results.line_prediction =
+							line_prediction;
+						
+						file_line_evaluation_results.timestamp_end =
+							QLogicaeCore::TIME.now();
+
+						if (minimum_positive_prediction <= line_prediction &&
+							line_prediction <= maximum_positive_prediction
 						)
 						{
 							++file_system_evaluation_results.total_positive_prediction_count;
-							file_system_evaluation_results.positive_file_evaluation_results[file_system_entity_path_string]
+							file_system_evaluation_results
+								.positive_file_evaluation_results[file_system_entity_path_string]
 								.file_line_evaluation_results
 								.push_back(
 									file_line_evaluation_results
 								);
 						}
 
-						file_result.file_line_evaluation_results.push_back(
-							file_line_evaluation_results
-						);
+						file_result
+							.file_line_evaluation_results
+							.push_back(
+								file_line_evaluation_results
+							);
 					}
 
 					file_system_evaluation_results.total_line_count += 
 						file_result.file_line_evaluation_results.size();
 
-					file_result.timestamp_end = QLogicaeCore::TIME.now();
+					file_result.timestamp_end =
+						QLogicaeCore::TIME.now();
+					
 					file_promise.set_value();
 				}
 			);
