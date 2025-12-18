@@ -591,7 +591,7 @@ namespace QLogicaeAiseConsole
 					DOUBLE_INPUTS.get("evaluate", "minimum_positive_prediction"),
 					"the minimum prediction inclusive value to be labeled as 'positive'")
 				->check(CLI::Range(0.0, 1.0))
-				->default_val(0.99);
+				->default_val(0.999);
 
 			evaluate_command
 				->add_option("--maximum-positive-prediction",
@@ -801,7 +801,11 @@ namespace QLogicaeAiseConsole
 						cursor_info.bVisible = FALSE;
 						SetConsoleCursorInfo(handle, &cursor_info);
 
-						std::cout << "\x1b[2J\x1b[H";
+						LOGGER.log(
+							void_result,
+							"\x1b[2J\x1b[H",
+							console_log_configurations_2
+						);
 
 						indicators::ProgressSpinner progress_spinner
 						{
@@ -842,7 +846,7 @@ namespace QLogicaeAiseConsole
 								.maximum_positive_prediction =
 									evaluate_command__maximum_positive_prediction,
 								.file_evaluation_callback =
-									[&progress_spinner](const QLogicaeAiseCore::AiseApiFileSystemEvaluationCallbackConfigurationsResults& callback_results)
+									[&void_result, &console_log_configurations_2, &progress_spinner](const QLogicaeAiseCore::AiseApiFileSystemEvaluationCallbackConfigurationsResults& callback_results)
 								{
 									progress_spinner.set_option(
 										indicators::option::PostfixText
@@ -851,7 +855,11 @@ namespace QLogicaeAiseConsole
 										}
 									);
 
-									std::cout << "\x1b[2J\x1b[H";
+									LOGGER.log(
+										void_result,
+										"\x1b[2J\x1b[H",
+										console_log_configurations_2
+									);
 									progress_spinner.tick();
 								}
 							}
@@ -1118,14 +1126,22 @@ namespace QLogicaeAiseConsole
 
 								output_stream << file_table;
 
-								std::cout << "\x1b[2J\x1b[H";
+								LOGGER.log(
+									void_result,
+									"\x1b[2J\x1b[H",
+									console_log_configurations_2
+								);
 								progress_spinner.tick();
 							}
 						}
 
 						output_stream << "\n";
 						
-						std::cout << "\x1b[2J\x1b[H";
+						LOGGER.log(
+							void_result,
+							"\x1b[2J\x1b[H",
+							console_log_configurations_2
+						);
 
 						progress_spinner.set_option(
 							indicators::option::PostfixText

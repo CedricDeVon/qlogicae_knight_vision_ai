@@ -14,7 +14,7 @@ namespace QLogicaeAiseCore
 			".cpp"
 		};
 
-		double minimum_positive_prediction = 0.99;
+		double minimum_positive_prediction = 0.999;
 
 		double maximum_positive_prediction = 1.0;
 

@@ -422,6 +422,16 @@ namespace QLogicaeAiseCore
 			callback_configurations_results
 		);
 
+		if (!std::filesystem::exists(configurations.root_folder_path))
+		{
+			file_system_evaluation_results.timestamp_end =
+				QLogicaeCore::TIME.now();
+			result.set_to_good_status_with_value(
+				file_system_evaluation_results
+			);
+			return;
+		}		
+
 		for (const auto& file_system_entity :
 			std::filesystem::recursive_directory_iterator(
 				configurations.root_folder_path,
@@ -481,48 +491,140 @@ namespace QLogicaeAiseCore
 					std::lock_guard<std::mutex>
 						lock(results_mutex);
 
+					BOOL
+						is_file_readable;
+
 					size_t
+						start,
+						length,
+						index_1,
 						line_number = 0;
 
 					std::string
-						line_text;
+						line_text,
+						leftover;
 
 					auto& file_result =
 						file_system_evaluation_results
 							.file_evaluation_results[file_system_entity_path_string];
 
+					DWORD
+						bytes_read;
+
 					double
 						line_prediction;
-
-					std::ifstream
-						file_stream(file_system_entity_path_string);
 
 					AiseApiFileLineEvaluationResults
 						file_line_evaluation_results;
 
+					fast_io::native_file file(
+						file_system_entity_path_string,
+						fast_io::open_mode::in
+					);
 
-					while (std::getline(file_stream, line_text))
+					HANDLE
+						handle = file.native_handle();
+
+					constexpr std::size_t
+						buffer_size = ;
+
+					char buffer[1024];
+
+					while (true)
+					{
+						bytes_read = 0;
+						is_file_readable = ReadFile(
+							handle,
+							buffer,
+							static_cast<DWORD>(buffer_size),
+							&bytes_read, nullptr
+						);
+						
+						if (!is_file_readable || bytes_read == 0)
+						{
+							break;
+						}
+
+						start = 0;
+						for (index_1 = 0;
+							index_1 < bytes_read;
+							++index_1)
+						{
+							if (buffer[index_1] == '\n')
+							{
+								length = index_1 - start;
+
+								line_text = leftover;
+								leftover.clear();
+
+								if (length > 0 && buffer[start + length - 1] == '\r')
+								{
+									--length;
+								}
+
+								line_text.append(
+									buffer + start,
+									length
+								);
+
+								line_prediction =
+									neural_network_model.predict(
+										line_text
+									);
+								file_line_evaluation_results.line_text =
+									line_text;
+								file_line_evaluation_results.line_number =
+									++line_number;
+								file_line_evaluation_results.line_prediction =
+									line_prediction;
+								file_line_evaluation_results.timestamp_end =
+									QLogicaeCore::TIME.now();
+								if (minimum_positive_prediction <= line_prediction &&
+									line_prediction <= maximum_positive_prediction
+									)
+								{
+									++file_system_evaluation_results.total_positive_prediction_count;
+									file_system_evaluation_results
+										.positive_file_evaluation_results[file_system_entity_path_string]
+										.file_line_evaluation_results
+										.push_back(
+											file_line_evaluation_results
+										);
+								}
+
+								file_result
+									.file_line_evaluation_results
+									.push_back(
+										file_line_evaluation_results
+									);
+
+								start = index_1 + 1;
+							}
+						}
+
+						if (start < bytes_read)
+						{
+							leftover.append(buffer + start, bytes_read - start);
+						}
+					}
+
+					if (!leftover.empty())
 					{
 						line_prediction =
 							neural_network_model.predict(
-								line_text
+								leftover
 							);
-
 						file_line_evaluation_results.line_text =
-							line_text;
-						
+							leftover;
 						file_line_evaluation_results.line_number =
 							++line_number;
-						
 						file_line_evaluation_results.line_prediction =
 							line_prediction;
-						
 						file_line_evaluation_results.timestamp_end =
 							QLogicaeCore::TIME.now();
-
 						if (minimum_positive_prediction <= line_prediction &&
 							line_prediction <= maximum_positive_prediction
-						)
+							)
 						{
 							++file_system_evaluation_results.total_positive_prediction_count;
 							file_system_evaluation_results
@@ -538,8 +640,8 @@ namespace QLogicaeAiseCore
 							.push_back(
 								file_line_evaluation_results
 							);
-					}
-
+					}						
+					
 					file_system_evaluation_results.total_line_count += 
 						file_result.file_line_evaluation_results.size();
 
@@ -559,8 +661,11 @@ namespace QLogicaeAiseCore
 			);
 		}
 
-		file_system_evaluation_results.timestamp_end = QLogicaeCore::TIME.now();
-		result.set_to_good_status_with_value(file_system_evaluation_results);
+		file_system_evaluation_results.timestamp_end =
+			QLogicaeCore::TIME.now();
+		result.set_to_good_status_with_value(
+			file_system_evaluation_results
+		);
 	}
 
 	std::future<AiseApiFileSystemEvaluationResults> AiseApi::evaluate_async(
