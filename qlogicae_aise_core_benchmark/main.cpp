@@ -13,7 +13,7 @@ int main(int, char**)
     QLogicaeCore::Result<double>
         double_result;
     
-    double
+    doublex64/
         prediction_result = 0.0;
 
     size_t

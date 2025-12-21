@@ -591,7 +591,7 @@ namespace QLogicaeAiseConsole
 					DOUBLE_INPUTS.get("evaluate", "minimum_positive_prediction"),
 					"the minimum prediction inclusive value to be labeled as 'positive'")
 				->check(CLI::Range(0.0, 1.0))
-				->default_val(0.999);
+				->default_val(0.999999);
 
 			evaluate_command
 				->add_option("--maximum-positive-prediction",
